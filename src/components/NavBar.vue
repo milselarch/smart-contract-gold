@@ -21,29 +21,30 @@
         </b-navbar-dropdown>
     </template>
 
-    <template slot="end">
-        <b-navbar-item tag="div">
-            <font-awesome-icon 
-                :icon="['fab', 'telegram']" 
-                size="is-medium"
-            />
+    <template class="end" slot="end">
+      <button
+        class="button is-info is-light social-media"
+        slot="trigger"
+      >
+        <b-icon
+          pack="fab"
+          icon="telegram"
+          size="is-small">
+        </b-icon>
+      </button>
 
-            <b-dropdown :triggers="['hover']" aria-role="list">
-                <button class="button is-info" slot="trigger">
-                    <span>Hover me!</span>
-                    <b-icon
-                        pack="fas"
-                        icon="user-secret"
-                        size="is-small">
-                    </b-icon>
-                </button>
-
-                <b-dropdown-item aria-role="listitem">Action</b-dropdown-item>
-                <b-dropdown-item aria-role="listitem">Another action</b-dropdown-item>
-                <b-dropdown-item aria-role="listitem">Something else</b-dropdown-item>
-            </b-dropdown>
-        </b-navbar-item>
+      <button
+        class="button is-info is-light social-media"
+        slot="trigger"
+      >
+        <b-icon
+          pack="fab"
+          icon="discord"
+          size="is-small">
+        </b-icon>
+      </button>
     </template>
+
   </b-navbar>
 
 </template>
@@ -54,8 +55,17 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss">
 #navbar {
   padding: 2rem;
+}
+
+.end {
+  & * {
+    margin-right: 1rem;
+  }
+  &:nth-last-child(1) {
+    margin-right: 0rem;
+  }
 }
 </style>
