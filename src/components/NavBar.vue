@@ -33,6 +33,7 @@
             />
         </b-navbar-item>
     </template>
+
   </b-navbar>
 
 </template>
@@ -56,6 +57,15 @@ export default {
     margin-right: 0.5rem;
   }
   & .template-end *:last-child {
+    margin-right: 0rem;
+  }
+}
+
+.end {
+  & * {
+    margin-right: 1rem;
+  }
+  &:nth-last-child(1) {
     margin-right: 0rem;
   }
 }
