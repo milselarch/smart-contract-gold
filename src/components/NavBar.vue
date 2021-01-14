@@ -22,26 +22,15 @@
     </template>
 
     <template slot="end">
-        <b-navbar-item tag="div">
-            <font-awesome-icon 
-                :icon="['fab', 'telegram']" 
-                size="is-medium"
+        <b-navbar-item class="template-end" tag="div">
+            <media-icon
+              icon='telegram'
             />
 
-            <b-dropdown :triggers="['hover']" aria-role="list">
-                <button class="button is-info" slot="trigger">
-                    <span>Hover me!</span>
-                    <b-icon
-                        pack="fas"
-                        icon="user-secret"
-                        size="is-small">
-                    </b-icon>
-                </button>
-
-                <b-dropdown-item aria-role="listitem">Action</b-dropdown-item>
-                <b-dropdown-item aria-role="listitem">Another action</b-dropdown-item>
-                <b-dropdown-item aria-role="listitem">Something else</b-dropdown-item>
-            </b-dropdown>
+            <font-awesome-icon 
+                :icon="['fab', 'discord']" 
+                size="is-medium"
+            />
         </b-navbar-item>
     </template>
   </b-navbar>
@@ -49,13 +38,25 @@
 </template>
 
 <script>
+import MediaIcon from './MediaIcon'
+
 export default {
-  name: 'NavBar'
+  name: 'NavBar',
+  components: {
+    MediaIcon
+  }
 }
 </script>
 
-<style>
+<style lang="scss">
 #navbar {
   padding: 2rem;
+
+  & .template-end * {
+    margin-right: 0.5rem;
+  }
+  & .template-end *:last-child {
+    margin-right: 0rem;
+  }
 }
 </style>
