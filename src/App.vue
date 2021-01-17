@@ -8,6 +8,8 @@
 
 <script>
 import NavBar from './components/NavBar.vue'
+import ABI from './components/ABI'
+
 const wallet = require('eth-lightwallet')
 
 export default {
