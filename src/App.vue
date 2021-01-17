@@ -17,7 +17,13 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss">
+@import "~bulma/sass/utilities/_all";
+// Import Bulma and Buefy styles
+@import "~bulma";
+@import "~buefy/src/scss/buefy";
+@import "./assets/vars.scss";
+
 #app {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

@@ -25,11 +25,12 @@
         <b-navbar-item class="template-end" tag="div">
             <media-icon
               icon='telegram'
+              url='https://t.me/gandhijiio'
             />
 
-            <font-awesome-icon 
-                :icon="['fab', 'discord']" 
-                size="is-medium"
+            <media-icon
+              icon='discord'
+              url='https://discord.gg/2JYfAvm'
             />
         </b-navbar-item>
     </template>
