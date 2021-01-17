@@ -8,9 +8,15 @@
 
 <script>
 import NavBar from './components/NavBar.vue'
+const wallet = require('eth-lightwallet')
 
 export default {
   name: 'App',
+
+  created: function () {
+    console.log('WALLET', wallet, ABI)
+  },
+  
   components: {
     NavBar
   }

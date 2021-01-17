@@ -15,6 +15,7 @@
     "@fortawesome/vue-fontawesome": "^2.0.2",
     "buefy": "^0.9.4",
     "core-js": "^3.6.5",
+    "eth-lightwallet": "^4.0.0",
     "vue": "^2.6.11"
   },
   "devDependencies": {
