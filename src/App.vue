@@ -1,6 +1,7 @@
 <template>
   <div id="app">
     <NavBar></NavBar>
+    {{balance}}
     <img alt="Vue logo" src="./assets/logo.png">
     <!-- <HelloWorld msg="Welcome to Your Vue.js App"/> -->
   </div>
@@ -9,14 +10,38 @@
 <script>
 import NavBar from './components/NavBar.vue'
 import ABI from './components/ABI'
+import EthContract from './components/EthContract'
+import Misc from './components/misc'
 
 const wallet = require('eth-lightwallet')
 
 export default {
   name: 'App',
 
+  data: function () {
+    return {
+      balance: 'loading',
+      isDestroyed: false,
+      contract: null,
+    }
+  },
+
   created: function () {
     console.log('WALLET', wallet, ABI)
+  },
+
+  mounted: function () {
+    const self = this;
+    self.contract = new EthContract();
+
+    (async () => {
+      self.balance = await self.contract.getBalance()
+      Misc.sleepAsync(1000)
+    })()
+  },
+
+  beforeDestroy () {
+    this.isDestroyed = true
   },
   
   components: {
