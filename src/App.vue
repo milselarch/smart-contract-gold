@@ -1,14 +1,18 @@
 <template>
   <div id="app">
-    <NavBar></NavBar>
-    {{balance}}
-    <img alt="Vue logo" src="./assets/logo.png">
-    <!-- <HelloWorld msg="Welcome to Your Vue.js App"/> -->
+    <NavBar id="navbar"></NavBar>
+    <div id="content">
+      <SideBar id="side-bar"></SideBar>
+      <p> {{balance}} </p>
+      <!-- <HelloWorld msg="Welcome to Your Vue.js App"/> -->
+    </div>
   </div>
 </template>
 
 <script>
 import NavBar from './components/NavBar.vue'
+import SideBar from './components/SideBar.vue'
+
 import ABI from './components/ABI'
 import EthContract from './components/EthContract'
 import Misc from './components/misc'
@@ -45,7 +49,7 @@ export default {
   },
   
   components: {
-    NavBar
+    NavBar, SideBar
   }
 }
 </script>
@@ -57,11 +61,31 @@ export default {
 @import "~buefy/src/scss/buefy";
 @import "./assets/vars.scss";
 
+// Defaults to weight 400 with all styles included.
+@import url('https://fonts.googleapis.com/css?family=Open-Sans');
+
 #app {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
+
+  & > #content {
+    display: grid;
+    grid-template-columns: 30rem 1fr;
+    grid-template-rows: auto;
+    grid-template-areas: 
+      "header header header header"
+      "main main . sidebar"
+      "footer footer footer footer";
+
+    margin-left: 5rem;
+    margin-right: 5rem;
+  }
+}
+
+* {
+  font-family: "Open Sans";
 }
 
 svg.fa-is-medium {
