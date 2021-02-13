@@ -1,6 +1,8 @@
 <template>
   <div>
-    <Doughnut :data="potato" :options="chartOptions"></Doughnut>
+    <Doughnut 
+      :data="potato" :options="chartOptions"
+    ></Doughnut>
     <p>Testubg</p>
   </div>
 </template>
@@ -12,6 +14,7 @@ export default {
   name: 'SideBar',
   data () {
     return {
+      balance: null,
       chartOptions: {
         hoverBorderWidth: 20,
         display: false,
@@ -40,6 +43,8 @@ export default {
 
   methods: {
   },
+
+  props: ['contract'],
 
   mounted () {
     console.log('MOUNTED')

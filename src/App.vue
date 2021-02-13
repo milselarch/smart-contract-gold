@@ -2,7 +2,9 @@
   <div id="app">
     <NavBar id="navbar"></NavBar>
     <div id="content">
-      <SideBar id="side-bar"></SideBar>
+      <SideBar 
+        id="side-bar" :contract=contract
+      ></SideBar>
       <p> {{balance}} </p>
       <!-- <HelloWorld msg="Welcome to Your Vue.js App"/> -->
     </div>
@@ -31,7 +33,9 @@ export default {
   },
 
   created: function () {
+    // const self = this
     console.log('WALLET', wallet, ABI)
+    // console.log('ADDRESS', wallet.keystore.getAddresses())
   },
 
   mounted: function () {
@@ -39,8 +43,33 @@ export default {
     self.contract = new EthContract();
 
     (async () => {
+      let loader
+      if (self.contract.needsLoading()) {
+        // cover website with loading icon
+        loader = this.$buefy.loading.open()
+      }
+
+      const web3 = await self.contract.loadWallet()
+
+      if (web3) { 
+        // close loading icon
+        loader.close()
+      } else {
+        // show error message if metamask connection fails
+        self.$buefy.toast.open({
+          indefinite: true,
+          message: `Metamask connection failed.`,
+          position: 'is-bottom',
+          type: 'is-danger'
+        })
+      }
+
+      console.log('WALLER-KIAD', self.contract.getCurrentAddress())
       self.balance = await self.contract.getBalance()
-      Misc.sleepAsync(1000)
+
+      while (!self.isDestroyed) {
+        await Misc.sleepAsync(1000)
+      }
     })()
   },
 
