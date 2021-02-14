@@ -50,11 +50,13 @@ export default {
       }
 
       const web3 = await self.contract.loadWallet()
+      console.log('WEB3-STATUS', web3)
 
       if (web3) { 
         // close loading icon
         loader.close()
-      } else {
+      } else if ((web3 === false) || (web3 === undefined)) {
+        console.log('FAIL')
         // show error message if metamask connection fails
         self.$buefy.toast.open({
           indefinite: true,
@@ -69,6 +71,7 @@ export default {
 
       while (!self.isDestroyed) {
         await Misc.sleepAsync(1000)
+        if (!web3) { continue }
       }
     })()
   },
@@ -92,6 +95,7 @@ export default {
 
 // Defaults to weight 400 with all styles included.
 @import url('https://fonts.googleapis.com/css?family=Open-Sans');
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu+Mono&display=swap');
 
 #app {
   -webkit-font-smoothing: antialiased;
@@ -108,8 +112,8 @@ export default {
       "main main . sidebar"
       "footer footer footer footer";
 
-    margin-left: 5rem;
-    margin-right: 5rem;
+    margin-left: 10rem;
+    margin-right: 10rem;
   }
 }
 

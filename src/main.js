@@ -13,6 +13,8 @@ import { faDiscord } from '@fortawesome/free-brands-svg-icons'
 import { fas } from "@fortawesome/free-solid-svg-icons";
 // import { fab } from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import Donut from 'vue-css-donut-chart';
+import 'vue-css-donut-chart/dist/vcdonut.css';
 
 // library.add(fab)
 library.add(fas)
@@ -24,6 +26,7 @@ Vue.component('font-awesome-icon', FontAwesomeIcon)
 
 Vue.config.productionTip = false
 
+Vue.use(Donut);
 Vue.use(Buefy, {
   defaultIconComponent: "font-awesome-icon",
   defaultIconPack: "fas"
