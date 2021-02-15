@@ -1,5 +1,7 @@
 import { ethers } from "ethers";
 import ABI from './ABI'
+import Misc from './misc'
+
 const Client = require('node-rest-client').Client;
 const Web3 = require('web3')
 
@@ -13,6 +15,10 @@ class EthContract {
         self.ethPrice = null
         self.httpClient = new Client();
         self.contractAddress = CONTRACT_ADDR
+        self.walletBalance = null;
+        self.buyPrice = null;
+        self.sellPrice = null;
+        self.sellPrice = null;
         self.web3 = null;
 
         self.provider = new ethers.providers.Web3Provider(
@@ -22,11 +28,77 @@ class EthContract {
         // console.log('ACCOUNTS', self.accounts)
         console.log('WEB3', Web3.eth)
         console.log('CONTRACT', self.contractAddress)
+
+        self.walletMode = 'metamask'
         self.contract = new ethers.Contract(
             self.contractAddress, ABI, self.provider
         );
+
+        self.interface = self.contract.interface
+        // console.log('INTERFACE BP', self.contract.buyPrice())
+    }
+
+    getEthBalance = () => this._getEthBalance()
+    _getEthBalance () {
+        const self = this;
+        console.log('BAL', self.walletBalance, self.ethPrice, self.buyPrice)
+        if (self.walletBalance === null) {
+          return null
+        } else if (self.ethPrice === null) {
+          return null
+        } else if (self.sellPrice === null) {
+          return null
+        }
         
-        self.walletMode = 'metamask'
+        const ethValue = self.sellPrice * self.walletBalance
+        return ethValue
+    }
+
+    loadIfNeeded = async () => await this._loadIfNeeded()
+    async _loadIfNeeded () {
+        const self = this
+
+        if (self.ethPrice === null) {
+            await self.updateEthPrice()
+            // console.log('ETH UPDATE', self.ethPrice)
+        } if (self.buyPrice === null) {
+            await self.loadBuyPrice()
+            // console.log('BUY UPDATE', self.buyPrice)
+        } if (self.sellPrice === null) {
+            await self.loadSellPrice()
+            // console.log('BUY UPDATE', self.buyPrice)
+        } if (self.walletBalance === null) {
+            await self.loadWalletBalance()
+            // console.log('WAL UPDATE', self.walletBalance)
+        }
+    }
+
+    loadBuyPrice = async () => await this._loadBuyPrice()
+    async _loadBuyPrice () {
+        const self = this
+        self.buyPrice = await self._getBuyPrice()
+    }
+
+    getBuyPrice = async () => await this._getBuyPrice()
+    async _getBuyPrice () {
+        const self = this
+        const weiBuyPrice = await self.contract.buyPrice()
+        const buyPrice = self.convertWeiToEth(weiBuyPrice)
+        return buyPrice
+    }
+
+    loadSellPrice = async () => await this._loadSellPrice()
+    async _loadSellPrice () {
+        const self = this
+        self.sellPrice = await self._getSellPrice()
+    }
+
+    getSellPrice = async () => await this._getSellPrice()
+    async _getSellPrice () {
+        const self = this
+        const weiSellPrice = await self.contract.sellPrice()
+        const sellPrice = self.convertWeiToEth(weiSellPrice)
+        return sellPrice
     }
 
     needsLoading () {
@@ -39,6 +111,7 @@ class EthContract {
 
     loadWallet = async () => await this._loadWallet()
     async _loadWallet () {
+        const self = this
         const web3 = new Web3(window.web3.currentProvider);
 
          // Modern dapp browsers...
@@ -89,26 +162,38 @@ class EthContract {
         return ethBalance
     }
 
+    loadWalletBalance = async () => await this._loadWalletBalance()
+    async _loadWalletBalance () {
+        const self = this
+        self.walletBalance = await self._getWalletBalance()
+        return self.walletBalance
+    }
+
     getWalletBalance = async () => await this._getWalletBalance()
     async _getWalletBalance () {
         const self = this
         const address = self.getCurrentAddress()
-        // console.log('ADDRESS', address)
-        if (address === undefined) {
+        console.log('ADDRESS', address)
+        if (address === null) {
             return null
         }
 
-        const weiBalance = await self.contract.balanceOf(address);
+        const weiBalance = await Promise.race([
+            self.contract.balanceOf(address),
+            Misc.sleepAsync(2000)
+        ])
+
         const balance = self.convertWeiToEth(weiBalance)
         // console.log('BALANCE', balance)
         return balance
     }
 
     updateEthPrice = async () => await this._updateEthPrice()
-    _updateEthPrice () {
+    async _updateEthPrice () {
         const self = this
-        const price = self.fetchEthPrice()
+        const price = await self.fetchEthPrice()
         self.ethPrice = price
+        return price
     }
 
     fetchEthPrice = () => this._fetchEthPrice()
