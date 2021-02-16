@@ -12,10 +12,14 @@ class EthContract {
     constructor () {
         const self = this;
 
-        self.ethPrice = null
         self.httpClient = new Client();
         self.contractAddress = CONTRACT_ADDR
+
         self.walletBalance = null;
+        self.referralDividends = null;
+        self.normalDividends = null;
+        
+        self.ethPrice = null;
         self.buyPrice = null;
         self.sellPrice = null;
         self.sellPrice = null;
@@ -41,10 +45,9 @@ class EthContract {
     getEthBalance = () => this._getEthBalance()
     _getEthBalance () {
         const self = this;
-        console.log('BAL', self.walletBalance, self.ethPrice, self.buyPrice)
+        // console.log('BAL', self.walletBalance, self.ethPrice, self.buyPrice)
+        
         if (self.walletBalance === null) {
-          return null
-        } else if (self.ethPrice === null) {
           return null
         } else if (self.sellPrice === null) {
           return null
@@ -52,6 +55,31 @@ class EthContract {
         
         const ethValue = self.sellPrice * self.walletBalance
         return ethValue
+    }
+
+    getUsdBalance = () => this._getUsdBalance()
+    _getUsdBalance () {
+        const self = this
+        if (self.ethPrice === null) {
+            return null
+        }
+        const ethBalance = self.getEthBalance()
+        if (ethBalance === null) {
+            return null
+        }
+
+        const usdBalance = ethBalance * self.ethPrice
+        return usdBalance
+    }
+
+    update = async () => await this._update()
+    async _update () {
+        const self = this
+        await self.updateEthPrice()
+        await self.loadBuyPrice()
+        await self.loadSellPrice()
+        await self.loadWalletBalance()
+        await self.loadDividends()
     }
 
     loadIfNeeded = async () => await this._loadIfNeeded()
@@ -70,6 +98,8 @@ class EthContract {
         } if (self.walletBalance === null) {
             await self.loadWalletBalance()
             // console.log('WAL UPDATE', self.walletBalance)
+        } if (self.referralDividends === null) {
+            await self.loadDividends()
         }
     }
 
@@ -78,7 +108,6 @@ class EthContract {
         const self = this
         self.buyPrice = await self._getBuyPrice()
     }
-
     getBuyPrice = async () => await this._getBuyPrice()
     async _getBuyPrice () {
         const self = this
@@ -92,13 +121,39 @@ class EthContract {
         const self = this
         self.sellPrice = await self._getSellPrice()
     }
-
     getSellPrice = async () => await this._getSellPrice()
     async _getSellPrice () {
         const self = this
         const weiSellPrice = await self.contract.sellPrice()
         const sellPrice = self.convertWeiToEth(weiSellPrice)
         return sellPrice
+    }
+
+    loadDividends = async () => await this._loadDividends()
+    async _loadDividends () {
+        const self = this
+        self.referralDividends = await self.getDividends(true)
+        self.normalDividends = await self.getDividends(false)
+        return [self.normalDividends, self.referralDividends]
+    }
+    getDividends = async (r) => await this._getDividends(r)
+    async _getDividends (isReferral) {
+        const self = this
+        const address = self.getCurrentAddress()
+        if (address === null) {
+            return 0
+        }
+
+        const weiDividends = await self.contract.dividendsOf(address)
+        const weiReferrals = await self.contract.myDividends(true)
+        const totalDividends = self.convertWeiToEth(weiDividends)
+        const referrals = self.convertWeiToEth(weiReferrals)
+
+        if (isReferral) {
+            return referrals
+        } else {
+            return totalDividends - referrals
+        }
     }
 
     needsLoading () {
@@ -143,8 +198,8 @@ class EthContract {
         }
     }
 
-    getWeiBalance = async () => await this._getWeiBalance()
-    async _getWeiBalance () {
+    getContractWei = async () => await this._getContractWei()
+    async _getContractWei () {
         const self = this
         return await self.provider.getBalance(
             self.contractAddress
@@ -153,11 +208,11 @@ class EthContract {
 
     convertWeiToEth (e) { return e / 1e18 }
 
-    getBalance = async () => await this._getBalance()
-    async _getBalance () {
+    getContractBalance = async () => await this._getContractBalance()
+    async _getContractBalance () {
         // get contract balance
         const self = this
-        const weiBalance = await self.getWeiBalance()
+        const weiBalance = await self.getContractWei()
         const ethBalance = self.convertWeiToEth(weiBalance)
         return ethBalance
     }

@@ -3,9 +3,12 @@
     :sections="sections" :size="100" unit="%"
   >
     <p class="mono">{{balanceMessage}}</p>
-    <p class="mono small">{{ethBalanceMessage}}</p>
+    <p class="mono small">
+      {{ethBalanceMessage}} | {{usdBalanceMessage}}
+    </p>
   </vc-donut>
 </template>
+
 <script>
   /* eslint-disable no-empty */
   import Misc from './misc'
@@ -15,12 +18,51 @@
       return {
         walletBalance: null,
         ethBalance: null,
-        isDestroyed: false,
-        sections: [{ value: 25 }, { value: 25 }]
+        isDestroyed: false
       };
     },
 
     computed: {
+      sections: function () {
+        const self = this
+        let enoughData = true
+        
+        if (self.contract === null) {
+          enoughData = false
+        } else if (self.contract.getEthBalance() === null) {
+          enoughData = false
+        } else if (self.contract.referralDividends === null) {
+          enoughData = false
+        } else if (self.contract.normalDividends === null) {
+          enoughData = false
+        }
+
+        if (!enoughData) {
+          return [
+            { label: 'tokens', value: 0, color: '#417AEB' },
+            { label: 'dividends', value: 0, color: '#417AEB' },
+            { label: 'referrals', value: 0, color: '#95A0EF' },
+          ]
+        }
+
+        const ethBalance = self.contract.getEthBalance()
+        const dividends = self.contract.normalDividends
+        const referrals = self.contract.referralDividends
+        const total = ethBalance + dividends + referrals
+        console.log('TOTAL', ethBalance, dividends, referrals)
+        
+        const percentDivs = 100 * dividends / total
+        const percentRefs = 100 * referrals / total
+        const percentToken = 100 - percentDivs - percentRefs
+        console.log('PERCNETS', total, percentRefs, percentDivs, percentToken)
+
+        return [
+          { label: 'tokens', value: percentToken, color: '#417AEB' },
+          { label: 'dividends', value: percentDivs, color: '#95B3EF' },
+          { label: 'referrals', value: percentRefs, color: '#95A0EF' }
+        ]
+   
+      },
       balanceMessage: function () {
         const self = this
         if (self.walletBalance === null) {
@@ -46,6 +88,22 @@
         ) / multiplier
 
         return `${roundedBalance} ETH`
+      },
+      usdBalanceMessage: function () {
+        const self = this
+        if (self.walletBalance === null) {
+          return null
+        } else if (self.contract.ethPrice === null) {
+          return null
+        }
+
+        const multiplier = 100
+        const usdBalance = self.contract.getUsdBalance()
+        const roundedBalance = Math.floor(
+          multiplier * usdBalance
+        ) / multiplier
+
+        return `$${roundedBalance} USD`
       }
     },
 
@@ -75,7 +133,9 @@
             continue
           }
 
-          await self.contract.loadIfNeeded()          
+          await self.contract.update()
+          await self.contract.loadWalletBalance()
+           
           self.walletBalance = await self.contract.getWalletBalance()
           self.ethBalance = await self.contract.getEthBalance()
           console.log('WTG BALLNCE', self.ethBalance)

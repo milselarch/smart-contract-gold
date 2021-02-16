@@ -67,7 +67,7 @@ export default {
       }
 
       console.log('WALLER-KIAD', self.contract.getCurrentAddress())
-      self.balance = await self.contract.getBalance()
+      self.balance = await self.contract.getContractBalance()
 
       while (!self.isDestroyed) {
         await Misc.sleepAsync(1000)

@@ -4,7 +4,6 @@
       :data="potato" :options="chartOptions"
       :contract="contract"
     ></Doughnut>
-    <p>Testubg</p>
   </div>
 </template>
 
