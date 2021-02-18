@@ -78,16 +78,13 @@
       },
       ethBalanceMessage: function () {
         const self = this
-        if (self.walletBalance === null) {
+        if (self.ethBalance === null) {
           return null
         }
 
-        const multiplier = 100
-        const roundedBalance = Math.floor(
-          multiplier * self.ethBalance
-        ) / multiplier
-
-        return `${roundedBalance} ETH`
+        const roundedBalance = self.ethBalance.toFixed(2)
+        const delimited = Misc.addCommas(roundedBalance)
+        return `${delimited} ETH`
       },
       usdBalanceMessage: function () {
         const self = this
@@ -97,13 +94,10 @@
           return null
         }
 
-        const multiplier = 100
         const usdBalance = self.contract.getUsdBalance()
-        const roundedBalance = Math.floor(
-          multiplier * usdBalance
-        ) / multiplier
-
-        return `$${roundedBalance} USD`
+        const roundedBalance = usdBalance.toFixed(2)
+        const delimited = Misc.addCommas(roundedBalance)
+        return `$${delimited} USD`
       }
     },
 
@@ -164,6 +158,7 @@ p.mono {
 
   &.small {
     font-size: 1.3rem;
+    // font-weight: 500;
   }
 }
 

@@ -25,9 +25,10 @@ class EthContract {
         self.sellPrice = null;
         self.web3 = null;
 
-        self.provider = new ethers.providers.Web3Provider(
-            window.ethereum
-        )
+        const ethereum = window.ethereum
+        self.provider = new ethers.providers.Web3Provider(ethereum)
+        self.account = null
+        self.signer = null
 
         // console.log('ACCOUNTS', self.accounts)
         console.log('WEB3', Web3.eth)
@@ -137,22 +138,22 @@ class EthContract {
         return [self.normalDividends, self.referralDividends]
     }
     getDividends = async (r) => await this._getDividends(r)
-    async _getDividends (isReferral) {
+    async _getDividends (referral) {
         const self = this
-        const address = self.getCurrentAddress()
-        if (address === null) {
+        if (self.account === null) {
             return 0
         }
 
-        const weiDividends = await self.contract.dividendsOf(address)
-        const weiReferrals = await self.contract.myDividends(true)
-        const totalDividends = self.convertWeiToEth(weiDividends)
-        const referrals = self.convertWeiToEth(weiReferrals)
+        let divs = await self.account.myDividends(false)
+        let divsAndRefs = await self.account.myDividends(true)
+        divs = self.convertWeiToEth(divs)
+        divsAndRefs = self.convertWeiToEth(divsAndRefs)
+        const referrals = divsAndRefs - divs
 
-        if (isReferral) {
+        if (referral) {
             return referrals
         } else {
-            return totalDividends - referrals
+            return divs
         }
     }
 
@@ -178,6 +179,11 @@ class EthContract {
                 // Request account access if needed
                 console.log('CONNECT MORDERN')
                 await window.ethereum.enable();
+
+                const address = self.getCurrentAddress()
+                self.signer = self.provider.getSigner(address)
+                self.account = self.contract.connect(self.signer)
+
                 return window.web3
             } catch (error) {
                 // User denied account access...
@@ -241,6 +247,15 @@ class EthContract {
         const balance = self.convertWeiToEth(weiBalance)
         // console.log('BALANCE', balance)
         return balance
+    }
+
+    getContractTokens = async () => await this._getContractTokens()
+    async _getContractTokens () {
+        // get contract balance
+        const self = this
+        let supply = await self.contract.totalSupply()
+        supply = self.convertWeiToEth(supply)
+        return supply
     }
 
     updateEthPrice = async () => await this._updateEthPrice()
