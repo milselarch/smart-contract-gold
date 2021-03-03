@@ -3,8 +3,14 @@
     :sections="sections" :size="100" unit="%"
   >
     <p class="mono">{{balanceMessage}}</p>
-    <p class="mono small">
-      {{ethBalanceMessage}} | {{usdBalanceMessage}}
+    <p 
+      class="mono small"
+      v-show="
+        (ethBalanceMessage !== undefined) &&
+        (usdBalanceMessage !== undefined)
+      "
+    >
+      {{ethBalanceMessage}} / {{usdBalanceMessage}}
     </p>
   </vc-donut>
 </template>
@@ -16,7 +22,7 @@
   export default {
     data () {
       return {
-        walletBalance: null,
+        tokenBalance: null,
         ethBalance: null,
         isDestroyed: false
       };
@@ -65,12 +71,12 @@
       },
       balanceMessage: function () {
         const self = this
-        if (self.walletBalance === null) {
+        if (self.tokenBalance === null) {
           return 'loading...'
         } else {
           const multiplier = 100
           const roundedBalance = Math.floor(
-            multiplier * self.walletBalance
+            multiplier * self.tokenBalance
           ) / multiplier
           
           return `${roundedBalance} IND`
@@ -79,7 +85,7 @@
       ethBalanceMessage: function () {
         const self = this
         if (self.ethBalance === null) {
-          return null
+          return
         }
 
         const roundedBalance = self.ethBalance.toFixed(2)
@@ -88,10 +94,10 @@
       },
       usdBalanceMessage: function () {
         const self = this
-        if (self.walletBalance === null) {
-          return null
+        if (self.tokenBalance === null) {
+          return
         } else if (self.contract.ethPrice === null) {
-          return null
+          return
         }
 
         const usdBalance = self.contract.getUsdBalance()
@@ -126,17 +132,27 @@
             await Misc.sleepAsync(250)
             continue
           }
+          
+          try {
+            await self.contract.update()
+            await self.contract.loadTokenBalance()
 
-          await self.contract.update()
-          await self.contract.loadWalletBalance()
-           
-          self.walletBalance = await self.contract.getWalletBalance()
-          self.ethBalance = await self.contract.getEthBalance()
+            self.tokenBalance = await self.contract.getTokenBalance()
+            self.ethBalance = await self.contract.getEthBalance()
+          } catch (e) {
+            console.error(e)
+          }
+
           console.log('WTG BALLNCE', self.ethBalance)
 
           // console.log('ETH PRICE', ethPrice)
-          const buyPrice = await self.contract.getBuyPrice()
-          console.log('BUY PRICE', buyPrice)
+          try {
+            const buyPrice = await self.contract.getBuyPrice()
+            console.log('BUY PRICE', buyPrice)
+          } catch (e) {
+            console.error(e)
+          }
+          
           await Misc.sleepAsync(2500)
           // console.log('ISDES', self.isDestroyed)
         }

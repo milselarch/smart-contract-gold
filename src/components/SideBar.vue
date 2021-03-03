@@ -2,6 +2,7 @@
   <div>
     <div id="top-bar">
       <p><span>Contract Balance:</span></p>
+
       <p id="contract-balance">
         <span class='bold'>
           {{balanceMessage}} / {{usdBalanceMessage}}
@@ -34,6 +35,7 @@
       return {
         balance: null,
         tokens: null,
+        ethPrice: null,
 
         chartOptions: {
           hoverBorderWidth: 20,
@@ -76,7 +78,7 @@
         const self = this
         if (self.balance === null) {
           return 'loading...'
-        } else if (self.contract.ethPrice === null) {
+        } else if (self.ethPrice === null) {
           return 'loading...'
         }
 
@@ -114,9 +116,15 @@
       (async () => {
         while (!self.isDestroyed) {
           if (self.contract !== null) {
-            self.balance = await self.contract.getContractBalance()
-            self.tokens = await self.contract.getContractTokens()
-            console.log('BALANCE', self.contract, self.balance)
+            if (self.contract.balance !== null) {
+              self.balance = self.contract.balance
+            } if (self.contract.tokens !== null) {
+              self.tokens = self.contract.tokens
+            } if (self.contract.ethPrice !== null) {
+              self.ethPrice = self.contract.ethPrice
+            }
+
+            // console.log('BALANCE', self.contract, self.balance)
           }
 
           await Misc.sleepAsync(2500)

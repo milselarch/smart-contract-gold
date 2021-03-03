@@ -5,7 +5,9 @@
       <SideBar 
         id="side-bar" :contract=contract
       ></SideBar>
-      <p> {{balance}} </p>
+      <ContentBar
+        id="content-bar" :contract=contract
+      ></ContentBar>
       <!-- <HelloWorld msg="Welcome to Your Vue.js App"/> -->
     </div>
   </div>
@@ -14,6 +16,7 @@
 <script>
 import NavBar from './components/NavBar.vue'
 import SideBar from './components/SideBar.vue'
+import ContentBar from './components/ContentBar.vue'
 
 import ABI from './components/ABI'
 import EthContract from './components/EthContract'
@@ -47,6 +50,13 @@ export default {
       if (self.contract.needsLoading()) {
         // cover website with loading icon
         loader = this.$buefy.loading.open()
+      } if (self.contract.networkChanged) {
+        self.$buefy.toast.open({
+          indefinite: false,
+          message: `Metamask wallet changed`,
+          position: 'is-bottom',
+          type: 'is-danger'
+        })
       }
 
       const web3 = await self.contract.loadWallet()
@@ -81,7 +91,7 @@ export default {
   },
   
   components: {
-    NavBar, SideBar
+    NavBar, SideBar, ContentBar
   }
 }
 </script>
@@ -105,15 +115,16 @@ export default {
 
   & > #content {
     display: grid;
-    grid-template-columns: 30rem 1fr;
+    grid-template-columns: 30rem 35rem;
     grid-template-rows: auto;
-    grid-template-areas: 
-      "header header header header"
-      "main main . sidebar"
-      "footer footer footer footer";
+    width: fit-content;
 
-    margin-left: 10rem;
-    margin-right: 10rem;
+    margin-left: auto;
+    margin-right: auto;
+
+    & > #content-bar {
+      margin-left: 5rem;
+    }
   }
 }
 

@@ -8,6 +8,13 @@ const Web3 = require('web3')
 const CONTRACT_ADDR = '0x167cB3F2446F829eb327344b66E271D1a7eFeC9A'
 
 
+function AbiMismatchError(message = "") {
+    this.name = "AbiMismatchError";
+    this.message = message;
+}
+AbiMismatchError.prototype = Error.prototype;
+
+
 class EthContract {
     constructor () {
         const self = this;
@@ -15,10 +22,15 @@ class EthContract {
         self.httpClient = new Client();
         self.contractAddress = CONTRACT_ADDR
 
+        self.tokenBalance = null;
         self.walletBalance = null;
         self.referralDividends = null;
         self.normalDividends = null;
         
+        self.networkChanged = false;
+
+        self.balance = null;
+        self.tokens = null;
         self.ethPrice = null;
         self.buyPrice = null;
         self.sellPrice = null;
@@ -26,7 +38,21 @@ class EthContract {
         self.web3 = null;
 
         const ethereum = window.ethereum
-        self.provider = new ethers.providers.Web3Provider(ethereum)
+        self.provider = new ethers.providers.Web3Provider(
+            ethereum, 'any'
+        );
+        self.provider.on('network', (newNetwork, oldNetwork) => {
+            console.log('UPDATE PROVIEER', newNetwork)
+            // https://docs.ethers.io/v5/single-page/
+            // best practice for when the metamask network changes
+            // is to simply refresh the page
+            if (oldNetwork !== null) {
+                self.networkChanged = true
+                console.log('REFRESH NETWORK')
+                window.location.reload();
+            }
+        })
+
         self.account = null
         self.signer = null
 
@@ -43,18 +69,20 @@ class EthContract {
         // console.log('INTERFACE BP', self.contract.buyPrice())
     }
 
+    
+
     getEthBalance = () => this._getEthBalance()
     _getEthBalance () {
         const self = this;
         // console.log('BAL', self.walletBalance, self.ethPrice, self.buyPrice)
         
-        if (self.walletBalance === null) {
+        if (self.tokenBalance === null) {
           return null
         } else if (self.sellPrice === null) {
           return null
         }
         
-        const ethValue = self.sellPrice * self.walletBalance
+        const ethValue = self.sellPrice * self.tokenBalance
         return ethValue
     }
 
@@ -76,11 +104,17 @@ class EthContract {
     update = async () => await this._update()
     async _update () {
         const self = this
-        await self.updateEthPrice()
-        await self.loadBuyPrice()
-        await self.loadSellPrice()
-        await self.loadWalletBalance()
-        await self.loadDividends()
+        try {
+            await self.updateEthPrice()
+            await self.loadBuyPrice()
+            await self.loadSellPrice()
+            await self.loadTokenBalance()
+            await self.loadDividends()
+            await self.updateContractStats()
+        }  catch (e) {
+            console.error(e)
+            await Misc.sleepAsync(2000)
+        }
     }
 
     loadIfNeeded = async () => await this._loadIfNeeded()
@@ -96,12 +130,25 @@ class EthContract {
         } if (self.sellPrice === null) {
             await self.loadSellPrice()
             // console.log('BUY UPDATE', self.buyPrice)
-        } if (self.walletBalance === null) {
-            await self.loadWalletBalance()
+        } if (self.tokenBalance === null) {
+            await self.loadTokenBalance()
             // console.log('WAL UPDATE', self.walletBalance)
         } if (self.referralDividends === null) {
             await self.loadDividends()
         }
+    }
+
+    getWalletBalance = async () => await this._getWalletBalance()
+    async _getWalletBalance () {
+        // https://ethereum.stackexchange.com/questions/45082/using-ether-js-with-metamask/45165
+        const self = this
+        const address = self.getCurrentAddress()
+        if (address === null) {
+            return null
+        }
+
+        const balance = await self.provider.getBalance(address)
+        return balance
     }
 
     loadBuyPrice = async () => await this._loadBuyPrice()
@@ -112,7 +159,16 @@ class EthContract {
     getBuyPrice = async () => await this._getBuyPrice()
     async _getBuyPrice () {
         const self = this
-        const weiBuyPrice = await self.contract.buyPrice()
+        let weiBuyPrice = 0
+
+        try {
+            weiBuyPrice = await self.contract.buyPrice()
+        } catch (e) {
+            if (typeof e === TypeError) {
+                throw AbiMismatchError(e.message)
+            }
+        }
+        
         const buyPrice = self.convertWeiToEth(weiBuyPrice)
         return buyPrice
     }
@@ -158,6 +214,12 @@ class EthContract {
     }
 
     needsLoading () {
+        const self = this
+
+        if (self.networkChanged) {
+            return true
+        }
+
         return Boolean(window.ethereum)
     }
 
@@ -214,6 +276,21 @@ class EthContract {
 
     convertWeiToEth (e) { return e / 1e18 }
 
+    updateContractStats = async () => await this._updateContractStats()
+    async _updateContractStats () {
+        const self = this
+        try {
+            self.balance = await self.getContractBalance()
+            self.tokens = await self.getContractTokens()
+        } catch (e) {
+            if (typeof e === TypeError) {
+                throw AbiMismatchError(e.message)
+            }
+
+            console.error(e)
+        }
+    }
+
     getContractBalance = async () => await this._getContractBalance()
     async _getContractBalance () {
         // get contract balance
@@ -223,18 +300,18 @@ class EthContract {
         return ethBalance
     }
 
-    loadWalletBalance = async () => await this._loadWalletBalance()
-    async _loadWalletBalance () {
+    loadTokenBalance = async () => await this._loadTokenBalance()
+    async _loadTokenBalance () {
         const self = this
-        self.walletBalance = await self._getWalletBalance()
-        return self.walletBalance
+        self.tokenBalance = await self._getTokenBalance()
+        return self.tokenBalance
     }
 
-    getWalletBalance = async () => await this._getWalletBalance()
-    async _getWalletBalance () {
+    getTokenBalance = async () => await this._getTokenBalance()
+    async _getTokenBalance () {
         const self = this
         const address = self.getCurrentAddress()
-        console.log('ADDRESS', address)
+        // console.log('ADDRESS', address)
         if (address === null) {
             return null
         }
@@ -261,7 +338,13 @@ class EthContract {
     updateEthPrice = async () => await this._updateEthPrice()
     async _updateEthPrice () {
         const self = this
-        const price = await self.fetchEthPrice()
+        const price = await Promise.race([
+            self.fetchEthPrice(),
+            Misc.sleepAsync(2000)
+        ])
+        
+        console.log('NEW PRICE', price)
+        if (price === undefined) { return }
         self.ethPrice = price
         return price
     }
@@ -269,24 +352,24 @@ class EthContract {
     fetchEthPrice = () => this._fetchEthPrice()
     _fetchEthPrice () {
         const self = this
-        const currency = 'USD'
+        const currency = 'usd'
         const baseurl = 'https://api.coingecko.com/api/v3/simple/price'
         const url = `${baseurl}?ids=ethereum&vs_currencies=${currency}`
         const args = {
             headers: { "Content-Type": "application/json" }
         };
         
+        // console.log('FETH PRICE')
         return new Promise((resolve) => {
             self.httpClient.get(url, args, (data) => {
-                // console.log('DATA', data)
+                // console.log('PRICE DATA', data)
                 
                 let eth = 0;
-                for (var key in data.ethereum) {
-                    eth = data.ethereum[key]
-                }
-                
+                eth = data.ethereum[currency]
                 const price = parseFloat(eth + currency.toLowerCase())
                 resolve(price)
+
+                // console.log('PRICE', price)
             })
         }).catch((alert) => {
             console.error('ERROR', alert)
