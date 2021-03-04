@@ -103,7 +103,7 @@
         const usdBalance = self.contract.getUsdBalance()
         const roundedBalance = usdBalance.toFixed(2)
         const delimited = Misc.addCommas(roundedBalance)
-        return `$${delimited} USD`
+        return `${delimited} USD`
       }
     },
 

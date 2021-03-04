@@ -85,7 +85,7 @@
         const usdBalance = self.balance * self.contract.ethPrice
         const roundedBalance = usdBalance.toFixed(2)
         const delimited = Misc.addCommas(roundedBalance)
-        return `$${delimited} USD`
+        return `${delimited} USD`
       },
       supplyMessage: function () {
         const self = this

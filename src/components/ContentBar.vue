@@ -6,21 +6,21 @@
         <div class="divs-info referral-divs">
           <span class="header">Referrals: </span>
           <span class="divs">
-            {{ refsMessage }} ETH / ${{ refsUsdMessage }} USD
+            {{ refsMessage }} ETH / {{ refsUsdMessage }} USD
           </span>
         </div>
 
         <div class="divs-info normal-divs">
           <span class="header">Dividends: </span>
           <span class="divs">
-            {{ divsMessage }} ETH / ${{ divsUsdMessage }} USD
+            {{ divsMessage }} ETH / {{ divsUsdMessage }} USD
           </span>
         </div>
 
         <div class="divs-info metamask">
           <span class="header">Metamask: </span>
           <span class="divs">
-            {{ divsMessage }} ETH / ${{ divsUsdMessage }} USD
+            {{ divsMessage }} ETH / {{ divsUsdMessage }} USD
           </span>
         </div>
 
@@ -165,7 +165,7 @@ p {
 }
 
 * {
-  font-size: 1rem;
+  font-size: 1.2rem;
 }
 
 div.holder {
