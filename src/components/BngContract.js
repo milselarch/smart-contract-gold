@@ -106,6 +106,7 @@ class BngContract {
             await self.loadBuyPrice()
             await self.loadSellPrice()
             await self.loadTokenBalance()
+            await self.loadWalletBalance()
             await self.loadDividends()
             await self.updateContractStats()
         }  catch (e) {
@@ -134,6 +135,13 @@ class BngContract {
         }
     }
 
+    loadWalletBalance = async () => await this._loadWalletBalance()
+    async _loadWalletBalance () {
+        const self = this
+        self.walletBalance = await self._getWalletBalance()
+        return self.walletBalance
+    }
+
     getWalletBalance = async () => await this._getWalletBalance()
     async _getWalletBalance () {
         // https://ethereum.stackexchange.com/questions/45082/using-ether-js-with-metamask/45165
@@ -143,7 +151,8 @@ class BngContract {
             return null
         }
 
-        const balance = await self.provider.getBalance(address)
+        const weiBalance = await self.provider.getBalance(address)
+        const balance = self.convertWeiToEth(weiBalance)
         return balance
     }
 

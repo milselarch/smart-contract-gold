@@ -17,7 +17,7 @@
     <div class="divs-info metamask">
       <span class="header">Metamask: </span>
       <span class="divs">
-        {{ divsMessage }} BNB / {{ divsUsdMessage }} USD
+        {{ metamaskMessage }} BNB / {{ metamaskUsdMessage }} USD
       </span>
     </div>
   </div>
@@ -54,7 +54,7 @@ export default {
       }
 
       if (normalDivs === 0) { return 0 }
-      const roundedDivs = normalDivs.toFixed(3)
+      const roundedDivs = normalDivs.toFixed(4)
       return roundedDivs
     },
     divsUsdMessage: function () {
@@ -90,7 +90,7 @@ export default {
       }
       
       if (referralDivs === 0) { return 0 }
-      const roundedDivs = referralDivs.toFixed(3)
+      const roundedDivs = referralDivs.toFixed(4)
       return roundedDivs
     },
     refsUsdMessage: function () {
@@ -111,6 +111,42 @@ export default {
       const usdDivs = referralDivs * self.contract.bngPrice
       const roundedUsdDivs = usdDivs.toFixed(2)
       return roundedUsdDivs
+    },
+    metamaskMessage: function () {
+      const self = this
+      let balance = 0;
+
+      if (self.contract === null) {
+        return 0
+      } else if (self.contract.walletBalance === null) {
+        return 0
+      } else {
+        balance = self.contract.walletBalance
+      }
+      
+      if (balance === 0) { return 0 }
+      console.log('BALANCE', balance)
+      const roundBalance = balance.toFixed(4)
+      return roundBalance
+    },
+    metamaskUsdMessage: function () {
+      const self = this
+      let balance = 0;
+
+      if (self.contract === null) {
+        return 0
+      } else if (self.contract.walletBalance === null) {
+        return 0
+      } else if (self.contract.bngPrice === null) {
+        return 0
+      } else {
+        balance = self.contract.walletBalance
+      }
+
+      if (balance === 0) { return 0 }
+      const usdBalanace = balance * self.contract.bngPrice
+      const roundedUsdBalance = usdBalanace.toFixed(2)
+      return roundedUsdBalance
     }
   },
 
