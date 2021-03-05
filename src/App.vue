@@ -130,8 +130,22 @@ export default {
 @import "~buefy/src/scss/buefy";
 
 // Defaults to weight 400 with all styles included.
-@import url('https://fonts.googleapis.com/css?family=Open-Sans');
-@import url('https://fonts.googleapis.com/css2?family=Ubuntu+Mono&display=swap');
+// @import url('https://fonts.googleapis.com/css?family=Open-Sans');
+// @import url('https://fonts.googleapis.com/css2?family=Ubuntu+Mono&display=swap');
+
+@font-face {
+  font-family: "Open Sans";
+  src:
+    url('./assets/fonts/open_sans/OpenSans-Regular.ttf'),
+    url('https://fonts.googleapis.com/css?family=Open-Sans')
+}
+
+@font-face {
+  font-family: "Ubuntu Mono";
+  src:
+    url('./assets/fonts/ubuntu_mono/UbuntuMono-Regular.ttf'),
+    url('https://fonts.googleapis.com/css2?family=Ubuntu+Mono&display=swap');
+}
 
 #app {
   -webkit-font-smoothing: antialiased;

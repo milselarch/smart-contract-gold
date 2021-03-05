@@ -46,9 +46,9 @@ export default {
       let normalDivs = 0;
 
       if (self.contract === null) {
-        normalDivs = 0;
-      } if (self.contract.normalDividends === null) {
-        normalDivs = 0;
+        return 0
+      } else if (self.contract.normalDividends === null) {
+        return 0
       } else {
         normalDivs = self.contract.normalDividends
       }
@@ -62,11 +62,11 @@ export default {
       let normalDivs = 0;
 
       if (self.contract === null) {
-        normalDivs = 0;
+        return 0
       } else if (self.contract.normalDividends === null) {
-        normalDivs = 0;
+        return 0
       } else if (self.contract.bngPrice === null) {
-        normalDivs = 0;
+        return 0
       } else {
         normalDivs = self.contract.normalDividends
       }
@@ -176,13 +176,6 @@ p {
 
 .divs-info {
   display: flex;
-
-  &.metamask {
-    margin-bottom: 2rem;
-  }
-  &.referral-divs {
-    margin-top: 1rem;
-  }
 
   & > .header {
     width: 7rem;

@@ -24,11 +24,11 @@ export default {
   color: #444;
 
   &:hover {
-    color: $primary;
+    color: $primary-color;
   }
 
   &:active {
-    color: $primary-dark;
+    color: $primary-color-dark;
   }
 }
 </style>

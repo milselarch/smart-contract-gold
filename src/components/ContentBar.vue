@@ -8,12 +8,30 @@
         >
         </DividendInfo>
 
-        <b-tabs type="is-boxed" :animated="false">
+        <div class="div-actions">
+          <b-button 
+            class="reinvest" type="is-info" outlined
+            size='is-default'
+          >
+            Reinvest
+          </b-button>
+          <b-button
+            class="withdraw" type="is-danger" outlined
+            size='is-default'
+          >
+            Withdraw
+          </b-button>
+        </div>
+
+        <b-tabs
+          type="is-boxed" :animated="false"
+          class="buy-sell"
+        >
           <b-tab-item label="Buy Tokens">
             <b-field label="">
               <b-input
                 type="number"
-                placeholder="Ethereum Amount"
+                placeholder="BNB Amount"
                 maxlength="30"
                 step="0.000001"
               ></b-input>
@@ -25,7 +43,7 @@
               <b-input 
                 type="number"
                 maxlength="30"
-                placeholder="Ethereum Token Amount"
+                placeholder="BNG token Amount"
                 step="0.01"
               ></b-input>
             </b-field>
@@ -34,6 +52,10 @@
       </section>
 
     </template>
+    
+
+    <PriceInfo :contract="contract">
+    </PriceInfo>
 
     <br/>
     <div class="bottom">
@@ -64,6 +86,8 @@
 <script>
   import Misc from './misc'
   import DividendInfo from './DividendInfo.vue'
+  import PriceInfo from './PriceInfo.vue'
+
 
   export default {
     name: 'ContentBar',
@@ -190,7 +214,7 @@
     },
 
     components: {
-      DividendInfo
+      DividendInfo, PriceInfo
     },
 
     props: ['contract'],
@@ -238,6 +262,34 @@ div.holder {
 
   & div.bottom {
     margin-top: auto;
+  }
+
+  & div.div-actions {
+    display: flex;
+    margin-right: auto;
+    margin-top: 0.8rem;
+
+    & .reinvest {
+      margin-right: 0.8rem;
+    }
+  }
+}
+
+.buy-sell {
+  margin-top: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.divs-info {
+  display: flex;
+
+  & > .header {
+    width: 7rem;
+    text-align: left;
+  }
+  & > .divs {
+    font-family: 'Ubuntu Mono';
+    font-weight: 700;
   }
 }
 

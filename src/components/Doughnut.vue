@@ -96,7 +96,10 @@
       },
       usdBalanceMessage: function () {
         const self = this
-        if (self.contract.tokenBalance === null) {
+
+        if (self.contract === null) {
+          return
+        }if (self.contract.tokenBalance === null) {
           return
         } else if (self.contract.bngPrice === null) {
           return
