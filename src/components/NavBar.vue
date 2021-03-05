@@ -22,17 +22,17 @@
     </template>
 
     <template slot="end">
-        <b-navbar-item class="template-end" tag="div">
-            <media-icon
-              icon='telegram'
-              url='https://t.me/gandhijiio'
-            />
+      <b-navbar-item class="template-end" tag="div">
+        <media-icon
+          icon='telegram'
+          url='https://t.me/gandhijiio'
+        />
 
-            <media-icon
-              icon='discord'
-              url='https://discord.gg/2JYfAvm'
-            />
-        </b-navbar-item>
+        <media-icon
+          icon='discord'
+          url='https://discord.gg/2JYfAvm'
+        />
+      </b-navbar-item>
     </template>
 
   </b-navbar>

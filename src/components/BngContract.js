@@ -69,8 +69,6 @@ class BngContract {
         // console.log('INTERFACE BP', self.contract.buyPrice())
     }
 
-    
-
     getBngBalance = () => this._getBngBalance()
     _getBngBalance () {
         const self = this;
@@ -225,6 +223,25 @@ class BngContract {
         return window.ethereum.selectedAddress
     }
 
+    isConnected = () => this._isConnected()
+    _isConnected () {
+        const self = this
+        return (
+            (self.account !== null) &&
+            (self.tokenBalance !== null)
+        )
+    }
+
+    login = () => this._login()
+    _login () {
+        const self = this
+        const address = self.getCurrentAddress()
+        Misc.assert(address !== null)
+
+        self.signer = self.provider.getSigner(address)
+        self.account = self.contract.connect(self.signer)
+    }
+
     loadWallet = async () => await this._loadWallet()
     async _loadWallet () {
         const self = this
@@ -239,10 +256,7 @@ class BngContract {
                 // Request account access if needed
                 console.log('CONNECT MORDERN')
                 await window.ethereum.enable();
-
-                const address = self.getCurrentAddress()
-                self.signer = self.provider.getSigner(address)
-                self.account = self.contract.connect(self.signer)
+                self.login()
 
                 return window.web3
             } catch (error) {
@@ -255,6 +269,8 @@ class BngContract {
             console.log('CONNECT OLD')
             window.web3 = new Web3(web3.currentProvider);
             self.web3 = window.web3
+            self.login()
+
             return window.web3
         }
         // Non-dapp browsers...

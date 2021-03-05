@@ -3,26 +3,10 @@
   <div class="holder">
     <template>
       <section>
-        <div class="divs-info referral-divs">
-          <span class="header">Referrals: </span>
-          <span class="divs">
-            {{ refsMessage }} BNB / {{ refsUsdMessage }} USD
-          </span>
-        </div>
-
-        <div class="divs-info normal-divs">
-          <span class="header">Dividends: </span>
-          <span class="divs">
-            {{ divsMessage }} BNB / {{ divsUsdMessage }} USD
-          </span>
-        </div>
-
-        <div class="divs-info metamask">
-          <span class="header">Metamask: </span>
-          <span class="divs">
-            {{ divsMessage }} BNB / {{ divsUsdMessage }} USD
-          </span>
-        </div>
+        <DividendInfo 
+          id="divs-holder" :contract="contract"
+        >
+        </DividendInfo>
 
         <b-tabs type="is-boxed" :animated="false">
           <b-tab-item label="Buy Tokens">
@@ -49,25 +33,29 @@
         </b-tabs>
       </section>
 
-      <!--
-      <b-field grouped group-multiline>
-        <p class="control">
-          <b-button label="Buy Tokens" />
-        </p>
-        <p class="control">
-          <b-button label="Sell Tokens" />
-        </p>
-      </b-field>
-      -->
-
     </template>
 
     <br/>
     <div class="bottom">
       <p>Contract Address:</p>
-      <p class="mono">
+      <p class="mono" id="contract-address">
         0X167CB3F2446F829EB327344B66E271D1A7EFEC9A
       </p>
+
+      <b-message
+        type="is-danger" id="connect-error"
+        v-if="!contractConnected"
+      >
+        <p class="error">
+          Metamask account is not connected!
+        </p>
+        <b-button
+          type="is-danger is-light" outlined
+          @click="reconnect"
+        >
+          <span class="retry">Reconnect</span>
+        </b-button>
+      </b-message>
     </div>
   </div>
 
@@ -75,41 +63,52 @@
 
 <script>
   import Misc from './misc'
+  import DividendInfo from './DividendInfo.vue'
 
   export default {
     name: 'ContentBar',
     data: function () {
       return {
-        isDestroyed: false
+        contractConnected: true,
+        isDestroyed: false,
+        loader: null
       }
     },
+
     beforeDestroy () {
       this.isDestroyed = true
     },
+
     computed: {
       divsMessage: function () {
         const self = this
+        let normalDivs = 0;
+        
         if (self.contract === null) {
-          return 'loading...'
-        } if (self.contract.normalDividends === null) {
-          return 'loading...'
+          normalDivs = 0;
+        } else if (self.contract.normalDividends === null) {
+          normalDivs = 0;
+        } else {
+          normalDivs = self.contract.normalDividends
         }
 
-        const normalDivs = self.contract.normalDividends
-        const roundedDivs = normalDivs.toFixed(4)
+        const roundedDivs = normalDivs.toFixed(3)
         return roundedDivs
       },
       divsUsdMessage: function () {
         const self = this
+        let normalDivs = 0;
+
         if (self.contract === null) {
-          return 'loading...'
-        } if (self.contract.normalDividends === null) {
-          return 'loading...'
-        } if (self.contract.bngPrice === null) {
-          return 'loading...'
+          normalDivs = 0;
+        } else if (self.contract.normalDividends === null) {
+          normalDivs = 0;
+        } else if (self.contract.bngPrice === null) {
+          normalDivs = 0;
+        } else {
+          normalDivs = self.contract.normalDividends
         }
 
-        const normalDivs = self.contract.normalDividends
         const usdDivs = normalDivs * self.contract.bngPrice
         const roundedUsdDivs = usdDivs.toFixed(2)
         // console.log('DIVES', normalDivs, usdDivs, roundedUsdDivs)
@@ -117,30 +116,61 @@
       },
       refsMessage: function () {
         const self = this
+        let referralDivs = 0;
+
         if (self.contract === null) {
-          return 'loading...'
-        } if (self.contract.referralDividends === null) {
-          return 'loading...'
+          referralDivs = 0;
+        } else if (self.contract.referralDividends === null) {
+          referralDivs = 0;
+        } else {
+          referralDivs = self.contract.referralDividends
         }
 
-        const referralDivs = self.contract.referralDividends
-        const roundedDivs = referralDivs.toFixed(4)
+        const roundedDivs = referralDivs.toFixed(3)
         return roundedDivs
       },
       refsUsdMessage: function () {
         const self = this
+        let referralDivs = 0;
+
         if (self.contract === null) {
-          return 'loading...'
-        } if (self.contract.referralDividends === null) {
-          return 'loading...'
-        } if (self.contract.bngPrice === null) {
-          return 'loading...'
+          referralDivs = 0;
+        } else if (self.contract.referralDividends === null) {
+          referralDivs = 0;
+        } else if (self.contract.bngPrice === null) {
+          referralDivs = 0;
+        } else {
+          referralDivs = self.contract.referralDividends
         }
 
-        const referralDivs = self.contract.referralDividends
         const usdDivs = referralDivs * self.contract.bngPrice
         const roundedUsdDivs = usdDivs.toFixed(2)
         return roundedUsdDivs
+      }
+    },
+
+    methods: {
+      async reconnect () {
+        const self = this
+
+        if (self.loader !== null) {
+          self.loader.close()
+        }
+
+        self.loader = self.$buefy.loading.open()
+        const web3 = await self.contract.loadWallet()
+
+        if ((web3 === false) || (web3 === undefined)) {
+          // show error message if metamask connection fails
+          self.$buefy.toast.open({
+            duration: 2000,
+            message: `Metamask connection failed.`,
+            position: 'is-bottom',
+            type: 'is-danger'
+          })
+        }
+
+        self.loader.close()
       }
     },
 
@@ -149,9 +179,18 @@
       
       (async () => {
         while (!self.isDestroyed) {
-          await Misc.sleepAsync(1000)
+          await Misc.sleepAsync(200)
+          if (self.contract === null) {
+            self.contractConnected = true
+          }
+
+          self.contractConnected = self.contract.isConnected()
         }
       })()
+    },
+
+    components: {
+      DividendInfo
     },
 
     props: ['contract'],
@@ -161,11 +200,33 @@
 <style lang="scss" scoped>
 p {
   text-align: left;
-  font-size: 1;
+  font-size: 1.2rem;
 }
 
 * {
   font-size: 1.2rem;
+}
+
+p#contract-address {
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+}
+
+#connect-error {
+  text-align: left;
+
+  & p.error {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+
+    & > a {
+      font-weight: 700;
+    }
+  }
+
+  & span.retry {
+    font-size: 1.2rem;
+  }
 }
 
 div.holder {
@@ -177,26 +238,6 @@ div.holder {
 
   & div.bottom {
     margin-top: auto;
-  }
-}
-
-.divs-info {
-  display: flex;
-
-  &.metamask {
-    margin-bottom: 2rem;
-  }
-  &.referral-divs {
-    margin-top: 1rem;
-  }
-
-  & > .header {
-    width: 7rem;
-    text-align: left;
-  }
-  & > .divs {
-    font-family: 'Ubuntu Mono';
-    font-weight: 700;
   }
 }
 

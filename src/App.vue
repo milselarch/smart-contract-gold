@@ -1,6 +1,7 @@
 <template>
   <div id="app">
-    <NavBar id="navbar"></NavBar>
+    <NavBar id="navbar" ref='navbar'>
+    </NavBar>
     <div id="content">
       <SideBar 
         id="side-bar" :contract=contract
@@ -19,8 +20,12 @@ import SideBar from './components/SideBar.vue'
 import ContentBar from './components/ContentBar.vue'
 
 import ABI from './components/ABI'
-import EthContract from './components/EthContract'
+import EthContract from './components/BngContract'
 import Misc from './components/misc'
+import { ColorUpdater } from "bulma-css-vars";
+import { bulmaCssVariablesDefs } from "./bulma-generated/bulma-colors";
+
+const updater = new ColorUpdater(bulmaCssVariablesDefs);
 
 const wallet = require('eth-lightwallet')
 
@@ -35,6 +40,20 @@ export default {
     }
   },
 
+  methods: {
+     setColor (newColor, varName="primary") {
+      const self = this
+      const updatedVars = updater.getUpdatedVars(
+        varName, newColor
+      );
+      const container = self.$refs.navbar;
+      self.cssVars = updatedVars.map(({ name, value }) => {
+        container.style.setProperty(name, value);
+        return `${name}: ${value};`;
+      })
+    }
+  },
+
   created: function () {
     // const self = this
     console.log('WALLET', wallet, ABI)
@@ -43,14 +62,22 @@ export default {
 
   mounted: function () {
     const self = this;
+
+    // self.setColor('#fbad2e');
     self.contract = new EthContract();
+    let loader
 
     (async () => {
-      let loader
+      /*
       if (self.contract.needsLoading()) {
         // cover website with loading icon
         loader = this.$buefy.loading.open()
-      } if (self.contract.networkChanged) {
+      }
+      */
+      
+      if (self.contract.networkChanged) {
+        loader = self.$buefy.loading.open()
+
         self.$buefy.toast.open({
           indefinite: false,
           message: `Metamask wallet changed`,
@@ -61,21 +88,20 @@ export default {
 
       const web3 = await self.contract.loadWallet()
       console.log('WEB3-STATUS', web3)
-
-      if (web3) { 
-        // close loading icon
+      
+      if (loader !== undefined) {
         loader.close()
-      } else if ((web3 === false) || (web3 === undefined)) {
-        console.log('FAIL')
-        // show error message if metamask connection fails
-        self.$buefy.toast.open({
-          indefinite: true,
-          message: `Metamask connection failed.`,
+      }
+      
+      if (web3) {
+         self.$buefy.toast.open({
+          duration: 2000,
+          message: `Metamask connected!.`,
           position: 'is-bottom',
-          type: 'is-danger'
+          type: 'is-success'
         })
       }
-
+      
       console.log('WALLER-KIAD', self.contract.getCurrentAddress())
       self.balance = await self.contract.getContractBalance()
 

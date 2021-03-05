@@ -71,7 +71,9 @@
       },
       balanceMessage: function () {
         const self = this
-        if (self.tokenBalance === null) {
+        if (self.contract === null) {
+          return 'loading...'
+        } if (self.contract.tokenBalance === null) {
           return 'loading...'
         } else {
           const multiplier = 100
@@ -94,7 +96,7 @@
       },
       usdBalanceMessage: function () {
         const self = this
-        if (self.tokenBalance === null) {
+        if (self.contract.tokenBalance === null) {
           return
         } else if (self.contract.bngPrice === null) {
           return
