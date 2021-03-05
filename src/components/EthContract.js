@@ -5,7 +5,7 @@ import Misc from './misc'
 const Client = require('node-rest-client').Client;
 const Web3 = require('web3')
 
-const CONTRACT_ADDR = '0x167cB3F2446F829eb327344b66E271D1a7eFeC9A'
+const CONTRACT_ADDR = '0x66cB2D528A3380Bd919245D8812b45B03D421Ce5'
 
 
 function AbiMismatchError(message = "") {
@@ -15,7 +15,7 @@ function AbiMismatchError(message = "") {
 AbiMismatchError.prototype = Error.prototype;
 
 
-class EthContract {
+class BngContract {
     constructor () {
         const self = this;
 
@@ -31,7 +31,7 @@ class EthContract {
 
         self.balance = null;
         self.tokens = null;
-        self.ethPrice = null;
+        self.bngPrice = null;
         self.buyPrice = null;
         self.sellPrice = null;
         self.sellPrice = null;
@@ -57,8 +57,8 @@ class EthContract {
         self.signer = null
 
         // console.log('ACCOUNTS', self.accounts)
-        console.log('WEB3', Web3.eth)
-        console.log('CONTRACT', self.contractAddress)
+        // console.log('WEB3', Web3.eth)
+        // console.log('CONTRACT', self.contractAddress)
 
         self.walletMode = 'metamask'
         self.contract = new ethers.Contract(
@@ -71,10 +71,9 @@ class EthContract {
 
     
 
-    getEthBalance = () => this._getEthBalance()
-    _getEthBalance () {
+    getBngBalance = () => this._getBngBalance()
+    _getBngBalance () {
         const self = this;
-        // console.log('BAL', self.walletBalance, self.ethPrice, self.buyPrice)
         
         if (self.tokenBalance === null) {
           return null
@@ -89,15 +88,15 @@ class EthContract {
     getUsdBalance = () => this._getUsdBalance()
     _getUsdBalance () {
         const self = this
-        if (self.ethPrice === null) {
+        if (self.bngPrice === null) {
             return null
         }
-        const ethBalance = self.getEthBalance()
-        if (ethBalance === null) {
+        const bngBalance = self.getBngBalance()
+        if (bngBalance === null) {
             return null
         }
 
-        const usdBalance = ethBalance * self.ethPrice
+        const usdBalance = bngBalance * self.bngPrice
         return usdBalance
     }
 
@@ -105,7 +104,7 @@ class EthContract {
     async _update () {
         const self = this
         try {
-            await self.updateEthPrice()
+            await self.updateBngPrice()
             await self.loadBuyPrice()
             await self.loadSellPrice()
             await self.loadTokenBalance()
@@ -121,9 +120,8 @@ class EthContract {
     async _loadIfNeeded () {
         const self = this
 
-        if (self.ethPrice === null) {
-            await self.updateEthPrice()
-            // console.log('ETH UPDATE', self.ethPrice)
+        if (self.bngPrice === null) {
+            await self.updateBngPrice()
         } if (self.buyPrice === null) {
             await self.loadBuyPrice()
             // console.log('BUY UPDATE', self.buyPrice)
@@ -335,26 +333,26 @@ class EthContract {
         return supply
     }
 
-    updateEthPrice = async () => await this._updateEthPrice()
-    async _updateEthPrice () {
+    updateBngPrice = async () => await this._updateBngPrice()
+    async _updateBngPrice () {
         const self = this
         const price = await Promise.race([
-            self.fetchEthPrice(),
+            self.fetchBngPrice(),
             Misc.sleepAsync(2000)
         ])
         
         console.log('NEW PRICE', price)
         if (price === undefined) { return }
-        self.ethPrice = price
+        self.bngPrice = price
         return price
     }
 
-    fetchEthPrice = () => this._fetchEthPrice()
-    _fetchEthPrice () {
+    fetchBngPrice = () => this._fetchBngPrice()
+    _fetchBngPrice () {
         const self = this
         const currency = 'usd'
         const baseurl = 'https://api.coingecko.com/api/v3/simple/price'
-        const url = `${baseurl}?ids=ethereum&vs_currencies=${currency}`
+        const url = `${baseurl}?ids=binancecoin&vs_currencies=${currency}`
         const args = {
             headers: { "Content-Type": "application/json" }
         };
@@ -364,9 +362,9 @@ class EthContract {
             self.httpClient.get(url, args, (data) => {
                 // console.log('PRICE DATA', data)
                 
-                let eth = 0;
-                eth = data.ethereum[currency]
-                const price = parseFloat(eth + currency.toLowerCase())
+                let bng = 0;
+                bng = data.binancecoin[currency]
+                const price = parseFloat(bng + currency.toLowerCase())
                 resolve(price)
 
                 // console.log('PRICE', price)
@@ -377,4 +375,4 @@ class EthContract {
     }
 }
 
-export default EthContract
+export default BngContract

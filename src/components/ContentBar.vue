@@ -6,21 +6,21 @@
         <div class="divs-info referral-divs">
           <span class="header">Referrals: </span>
           <span class="divs">
-            {{ refsMessage }} ETH / {{ refsUsdMessage }} USD
+            {{ refsMessage }} BNB / {{ refsUsdMessage }} USD
           </span>
         </div>
 
         <div class="divs-info normal-divs">
           <span class="header">Dividends: </span>
           <span class="divs">
-            {{ divsMessage }} ETH / {{ divsUsdMessage }} USD
+            {{ divsMessage }} BNB / {{ divsUsdMessage }} USD
           </span>
         </div>
 
         <div class="divs-info metamask">
           <span class="header">Metamask: </span>
           <span class="divs">
-            {{ divsMessage }} ETH / {{ divsUsdMessage }} USD
+            {{ divsMessage }} BNB / {{ divsUsdMessage }} USD
           </span>
         </div>
 
@@ -105,13 +105,14 @@
           return 'loading...'
         } if (self.contract.normalDividends === null) {
           return 'loading...'
-        } if (self.contract.ethPrice === null) {
+        } if (self.contract.bngPrice === null) {
           return 'loading...'
         }
 
         const normalDivs = self.contract.normalDividends
-        const usdDivs = normalDivs * self.contract.ethPrice
+        const usdDivs = normalDivs * self.contract.bngPrice
         const roundedUsdDivs = usdDivs.toFixed(2)
+        // console.log('DIVES', normalDivs, usdDivs, roundedUsdDivs)
         return roundedUsdDivs
       },
       refsMessage: function () {
@@ -132,12 +133,12 @@
           return 'loading...'
         } if (self.contract.referralDividends === null) {
           return 'loading...'
-        } if (self.contract.ethPrice === null) {
+        } if (self.contract.bngPrice === null) {
           return 'loading...'
         }
 
         const referralDivs = self.contract.referralDividends
-        const usdDivs = referralDivs * self.contract.ethPrice
+        const usdDivs = referralDivs * self.contract.bngPrice
         const roundedUsdDivs = usdDivs.toFixed(2)
         return roundedUsdDivs
       }
@@ -148,7 +149,6 @@
       
       (async () => {
         while (!self.isDestroyed) {
-          
           await Misc.sleepAsync(1000)
         }
       })()

@@ -35,7 +35,7 @@
       return {
         balance: null,
         tokens: null,
-        ethPrice: null,
+        bngPrice: null,
 
         chartOptions: {
           hoverBorderWidth: 20,
@@ -72,17 +72,17 @@
 
         const roundedBalance = self.balance.toFixed(2) 
         const delimited = Misc.addCommas(roundedBalance)
-        return `${delimited} ETH`
+        return `${delimited} BNG`
       },
       usdBalanceMessage: function () {
         const self = this
         if (self.balance === null) {
           return 'loading...'
-        } else if (self.ethPrice === null) {
+        } else if (self.bngPrice === null) {
           return 'loading...'
         }
 
-        const usdBalance = self.balance * self.contract.ethPrice
+        const usdBalance = self.balance * self.contract.bngPrice
         const roundedBalance = usdBalance.toFixed(2)
         const delimited = Misc.addCommas(roundedBalance)
         return `${delimited} USD`
@@ -94,7 +94,7 @@
         } else {
           const roundedTokens = self.tokens.toFixed(2)
           const delimited = Misc.addCommas(roundedTokens)
-          return `${delimited} IND`
+          return `${delimited} BNG`
         }
       }
     },
@@ -120,8 +120,8 @@
               self.balance = self.contract.balance
             } if (self.contract.tokens !== null) {
               self.tokens = self.contract.tokens
-            } if (self.contract.ethPrice !== null) {
-              self.ethPrice = self.contract.ethPrice
+            } if (self.contract.bngPrice !== null) {
+              self.bngPrice = self.contract.bngPrice
             }
 
             // console.log('BALANCE', self.contract, self.balance)

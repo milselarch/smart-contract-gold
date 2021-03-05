@@ -99,9 +99,9 @@ export default {
 <style lang="scss">
 @import "~bulma/sass/utilities/_all";
 // Import Bulma and Buefy styles
+@import "./assets/vars.scss";
 @import "~bulma";
 @import "~buefy/src/scss/buefy";
-@import "./assets/vars.scss";
 
 // Defaults to weight 400 with all styles included.
 @import url('https://fonts.googleapis.com/css?family=Open-Sans');
@@ -111,7 +111,7 @@ export default {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  color: #2c3e50;
+  // color: #2c3e50;
 
   & > #content {
     display: grid;

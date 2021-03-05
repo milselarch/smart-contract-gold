@@ -35,7 +35,7 @@
         
         if (self.contract === null) {
           enoughData = false
-        } else if (self.contract.getEthBalance() === null) {
+        } else if (self.contract.getBngBalance() === null) {
           enoughData = false
         } else if (self.contract.referralDividends === null) {
           enoughData = false
@@ -51,7 +51,7 @@
           ]
         }
 
-        const ethBalance = self.contract.getEthBalance()
+        const ethBalance = self.contract.getBngBalance()
         const dividends = self.contract.normalDividends
         const referrals = self.contract.referralDividends
         const total = ethBalance + dividends + referrals
@@ -63,9 +63,9 @@
         console.log('PERCNETS', total, percentRefs, percentDivs, percentToken)
 
         return [
-          { label: 'tokens', value: percentToken, color: '#417AEB' },
-          { label: 'dividends', value: percentDivs, color: '#95B3EF' },
-          { label: 'referrals', value: percentRefs, color: '#95A0EF' }
+          { label: 'tokens', value: percentToken, color: '#fbad2e' },
+          { label: 'dividends', value: percentDivs, color: '#c98c3e' },
+          { label: 'referrals', value: percentRefs, color: '#966b4e' }
         ]
    
       },
@@ -79,7 +79,7 @@
             multiplier * self.tokenBalance
           ) / multiplier
           
-          return `${roundedBalance} IND`
+          return `${roundedBalance} BNG`
         }
       },
       ethBalanceMessage: function () {
@@ -96,7 +96,7 @@
         const self = this
         if (self.tokenBalance === null) {
           return
-        } else if (self.contract.ethPrice === null) {
+        } else if (self.contract.bngPrice === null) {
           return
         }
 
@@ -138,14 +138,13 @@
             await self.contract.loadTokenBalance()
 
             self.tokenBalance = await self.contract.getTokenBalance()
-            self.ethBalance = await self.contract.getEthBalance()
+            self.ethBalance = await self.contract.getBngBalance()
           } catch (e) {
             console.error(e)
           }
 
           console.log('WTG BALLNCE', self.ethBalance)
 
-          // console.log('ETH PRICE', ethPrice)
           try {
             const buyPrice = await self.contract.getBuyPrice()
             console.log('BUY PRICE', buyPrice)
