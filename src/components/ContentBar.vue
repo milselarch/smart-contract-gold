@@ -1,83 +1,28 @@
 <template>
-
   <div class="holder">
-    <template>
-      <section>
-        <DividendInfo 
-          id="divs-holder" :contract="contract"
-        >
-        </DividendInfo>
+    <section>
+      <DividendInfo 
+        id="divs-holder" :contract="contract"
+      >
+      </DividendInfo>
 
-        <div class="div-actions">
-          <b-button 
-            class="reinvest" type="is-info" outlined
-            size='is-default'
-          >
-            Reinvest
-          </b-button>
-          <b-button
-            class="withdraw" type="is-danger" outlined
-            size='is-default'
-          >
-            Withdraw
-          </b-button>
-        </div>
+      <div class="div-actions">
+        <VueButton class="withdraw is-gold">Withdraw</VueButton>
+        <VueButton class="reinvest is-dividend">Reinvest</VueButton>
+      </div>
+    </section>    
 
-        <b-tabs
-          type="is-boxed" :animated="false"
-          class="buy-sell"
-        >
-          <b-tab-item label="Buy Tokens">
-            <b-field label="">
-              <b-input
-                type="number"
-                placeholder="BNB Amount"
-                maxlength="30"
-                step="0.000001"
-              ></b-input>
-            </b-field>
-          </b-tab-item>
-          
-          <b-tab-item label="Sell Tokens">
-            <b-field label="">
-              <b-input 
-                type="number"
-                maxlength="30"
-                placeholder="BNG token Amount"
-                step="0.01"
-              ></b-input>
-            </b-field>
-          </b-tab-item>
-        </b-tabs>
-      </section>
-
-    </template>
-    
-
-    <PriceInfo :contract="contract">
+    <PriceInfo id="buy-sell-price" :contract="contract">
     </PriceInfo>
 
-    <br/>
+    <BuyAndSell id="buy-and-sell" :contract="contract">
+    </BuyAndSell>
+
     <div class="bottom">
       <p>Contract Address:</p>
       <p class="mono" id="contract-address">
         0X167CB3F2446F829EB327344B66E271D1A7EFEC9A
       </p>
-
-      <b-message
-        type="is-danger" id="connect-error"
-        v-if="!contractConnected"
-      >
-        <p class="error">
-          Metamask account is not connected!
-        </p>
-        <b-button
-          type="is-danger is-light" outlined
-          @click="reconnect"
-        >
-          <span class="retry">Reconnect</span>
-        </b-button>
-      </b-message>
     </div>
   </div>
 
@@ -87,7 +32,8 @@
   import Misc from './misc'
   import DividendInfo from './DividendInfo.vue'
   import PriceInfo from './PriceInfo.vue'
-
+  import BuyAndSell from './BuyAndSell.vue'
+  import VueButton from './VueButton.vue'
 
   export default {
     name: 'ContentBar',
@@ -95,7 +41,6 @@
       return {
         contractConnected: true,
         isDestroyed: false,
-        loader: null
       }
     },
 
@@ -174,28 +119,6 @@
     },
 
     methods: {
-      async reconnect () {
-        const self = this
-
-        if (self.loader !== null) {
-          self.loader.close()
-        }
-
-        self.loader = self.$buefy.loading.open()
-        const web3 = await self.contract.loadWallet()
-
-        if ((web3 === false) || (web3 === undefined)) {
-          // show error message if metamask connection fails
-          self.$buefy.toast.open({
-            duration: 2000,
-            message: `Metamask connection failed.`,
-            position: 'is-bottom',
-            type: 'is-danger'
-          })
-        }
-
-        self.loader.close()
-      }
     },
 
     mounted: function () {
@@ -214,7 +137,8 @@
     },
 
     components: {
-      DividendInfo, PriceInfo
+      DividendInfo, PriceInfo, BuyAndSell,
+      VueButton
     },
 
     props: ['contract'],
@@ -270,13 +194,18 @@ div.holder {
     margin-top: 0.8rem;
 
     & .reinvest {
-      margin-right: 0.8rem;
+      margin-left: 0.8rem;
     }
   }
 }
 
-.buy-sell {
+#buy-sell-price {
   margin-top: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+#buy-and-sell {
+  margin-top: 0.5rem;
   margin-bottom: 0.5rem;
 }
 
