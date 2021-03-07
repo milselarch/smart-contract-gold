@@ -203,8 +203,8 @@ div.holder {
 }
 
 #buy-and-sell {
-  margin-top: 0.5rem;
-  margin-bottom: 2.5rem;
+  margin-top: 1rem;
+  margin-bottom: 2rem;
 }
 
 .divs-info {

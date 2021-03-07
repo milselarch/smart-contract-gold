@@ -250,7 +250,7 @@ class BngContract {
         const self = this
         const chainID = self.chainID
 
-        console.log('CHAINID', chainID, self.chainID)
+        // console.log('CHAINID', chainID, self.chainID)
         if (chainID !== null) {
             if (chainID === 56) {
                 return false
@@ -396,7 +396,7 @@ class BngContract {
             Misc.sleepAsync(2000)
         ])
         
-        console.log('NEW PRICE', price)
+        // console.log('NEW PRICE', price)
         if (price === undefined) { return }
         self.bngPrice = price
         return price
