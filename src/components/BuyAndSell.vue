@@ -1,63 +1,52 @@
 <template>
   <div>
-    <div class='holder buy-holder'>
-      <input type="number">
-      <VueButton class="v-button is-primary small">
-        Buy Tokens
-      </VueButton>
-    </div>
+    <div v-show="contractConnected">
+      <div class='holder buy-holder'>
+        <input 
+          type="number" placeholder="BNB Amount"
+          ref="buyInput" min="0" step="0.01"
+        >
+        <VueButton class="v-button is-primary small">
+          Buy Tokens
+        </VueButton>
+      </div>
 
-    <div class='holder sell-holder'>
-      <input type="number">
-      <VueButton class="v-button is-danger small">
-        Sell Tokens
-      </VueButton>
+      <div class='holder sell-holder'>
+        <input
+          type="number" placeholder="BNB Token Amount"
+          ref="sellInput" min="0" step="0.01"
+        >
+        <VueButton class="v-button is-danger small">
+          Sell Tokens
+        </VueButton>
+      </div>
     </div>
-
-    <!--
-    <b-tabs
-      type="is-boxed" :animated="false"
-      v-if="contractConnected"
-      class="buy-sell"
-    >
-      <b-tab-item label="Buy Tokens">
-        <b-field label="">
-          <b-input
-            type="number"
-            placeholder="BNB Amount"
-            maxlength="30"
-            step="0.000001"
-          ></b-input>
-        </b-field>
-      </b-tab-item>
-      
-      <b-tab-item label="Sell Tokens">
-        <b-field label="">
-          <b-input 
-            type="number"
-            maxlength="30"
-            placeholder="BNG token Amount"
-            step="0.01"
-          ></b-input>
-        </b-field>
-      </b-tab-item>
-    </b-tabs>
-    -->
 
     <b-message
       type="is-danger" id="connect-error"
       v-if="!contractConnected"
     >
-      <p class="error">
-        Metamask account is not connected!
-      </p>
-      <b-button
-        type="is-danger is-light" outlined
-        @click="reconnect"
-      >
-        <span class="retry">Reconnect</span>
-      </b-button>
+      <div v-show="!wrongChainID">
+        <p class="error">
+          Metamask account is not connected!
+        </p>
+        <b-button
+          type="is-danger is-light" outlined
+          class="reconnect"
+          @click="reconnect"
+        >
+          <span class="retry">Reconnect</span>
+        </b-button>
+      </div>
+
+      <div v-show="wrongChainID">
+        <p class="error">
+          Wrong metamask network
+        </p>
+        <span class="chain"> {{ chain }} </span>
+      </div>
     </b-message>
+
   </div>
 </template>
 
@@ -71,6 +60,7 @@
     data: function () {
       return {
         isDestroyed: false,
+        wrongChainID: false,
         contractConnected: true,
         loader: null
       }
@@ -78,6 +68,17 @@
 
     beforeDestroy () {
       this.isDestroyed = true
+    },
+
+    computed: {
+      chain: function () {
+        const self = this
+        if (self.contract === null) {
+          return
+        }
+
+        return self.contract.network
+      }
     },
 
     methods: {
@@ -107,6 +108,16 @@
 
     mounted: function () {
       const self = this;
+      const inputs = [
+        self.$refs.buyInput, self.$refs.sellInput
+      ]
+
+      inputs.forEach(input => {
+        // remove - sign from being typed into input
+        input.onkeydown = function (e) {
+          if (e.key === '-') { return false } 
+        };
+      });
     
       (async () => {
         while (!self.isDestroyed) {
@@ -115,6 +126,7 @@
             self.contractConnected = true
           }
 
+          self.wrongChainID = self.contract.isChainInvalid()
           self.contractConnected = self.contract.isConnected()
         }
       })()
@@ -139,6 +151,9 @@ input {
 
   &:focus {
     outline: none;
+  }
+  &::placeholder {
+    color: #BBB;
   }
 }
 
@@ -172,11 +187,14 @@ div.holder {
 
   & p.error {
     font-size: 1.1rem;
-    margin-bottom: 0.5rem;
 
     & > a {
       font-weight: 700;
     }
+  }
+
+  & .reconnect {
+    margin-top: 0.5rem;
   }
 
   & span.retry {

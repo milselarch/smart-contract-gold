@@ -28,6 +28,8 @@ class BngContract {
         self.normalDividends = null;
         
         self.networkChanged = false;
+        self.network = null;
+        self.chainID = null;
 
         self.balance = null;
         self.tokens = null;
@@ -69,6 +71,16 @@ class BngContract {
         // console.log('INTERFACE BP', self.contract.buyPrice())
     }
 
+    loadNetwork = async () => await this._loadNetwork()
+    async _loadNetwork () {
+        const self = this
+        const network = await self.provider.getNetwork()
+        // console.log('NETWORK', network)
+        self.network = network
+        self.chainID = network.chainId
+        return network
+    }
+
     getBngBalance = () => this._getBngBalance()
     _getBngBalance () {
         const self = this;
@@ -102,6 +114,7 @@ class BngContract {
     async _update () {
         const self = this
         try {
+            await self.loadNetwork()
             await self.updateBngPrice()
             await self.loadBuyPrice()
             await self.loadSellPrice()
@@ -232,12 +245,29 @@ class BngContract {
         return window.ethereum.selectedAddress
     }
 
+    isChainInvalid = () => this._isChainInvalid()
+    _isChainInvalid () {
+        const self = this
+        const chainID = self.chainID
+
+        console.log('CHAINID', chainID, self.chainID)
+        if (chainID !== null) {
+            if (chainID === 56) {
+                return false
+            }
+        }
+
+        return true
+    }
+
     isConnected = () => this._isConnected()
     _isConnected () {
         const self = this
+
         return (
             (self.account !== null) &&
-            (self.tokenBalance !== null)
+            (self.tokenBalance !== null) &&
+            !self._isChainInvalid()
         )
     }
 

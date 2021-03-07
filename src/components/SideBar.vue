@@ -16,6 +16,9 @@
     ></Doughnut>
 
     <div id="top-bar">
+      <p id="bnb-price">
+        <span class='bold'>{{priceMessage}}</span>
+      </p>
       <p><span>Current Token Supply:</span></p>
       <p id="contract-balance">
         <span class='bold'>{{supplyMessage}}</span>
@@ -64,6 +67,15 @@
     },
 
     computed: {
+      priceMessage: function () {
+        const self = this
+        if (self.bngPrice === null) {
+          return `BNB: NaN USD`
+        }
+
+        const roundedPrice = self.bngPrice.toFixed(2)
+        return `BNB: ${roundedPrice} USD`
+      },
       balanceMessage: function () {
         const self = this
         if (self.balance === null) {
@@ -150,6 +162,10 @@ div#top-bar {
     font-size: 1.2rem;
     display: flex;
     justify-content: space-around;
+
+    &#bnb-price {
+      margin-bottom: 0.5rem;
+    }
 
     & span.bold {
       font-weight: 700;

@@ -7,8 +7,12 @@
       </DividendInfo>
 
       <div class="div-actions">
-        <VueButton class="withdraw is-gold">Withdraw</VueButton>
-        <VueButton class="reinvest is-dividend">Reinvest</VueButton>
+        <VueButton class="withdraw is-gold small">
+          Withdraw
+        </VueButton>
+        <VueButton class="reinvest is-dividend small">
+          Reinvest
+        </VueButton>
       </div>
     </section>    
 
@@ -22,6 +26,17 @@
       <p>Contract Address:</p>
       <p class="mono" id="contract-address">
         0X167CB3F2446F829EB327344B66E271D1A7EFEC9A
+      </p>
+      <p v-show="hasUserAddress">
+        Your Referral Link:
+      </p>
+      <p 
+        class="mono" id="contract-address"
+        v-show="hasUserAddress"
+      >
+        <a href="#" @click="copyReferral">
+          {{ userReferralLink }}
+        </a>
       </p>
     </div>
   </div>
@@ -39,7 +54,6 @@
     name: 'ContentBar',
     data: function () {
       return {
-        contractConnected: true,
         isDestroyed: false,
       }
     },
@@ -49,76 +63,51 @@
     },
 
     computed: {
-      divsMessage: function () {
+      hasUserAddress: function () {
         const self = this
-        let normalDivs = 0;
-        
         if (self.contract === null) {
-          normalDivs = 0;
-        } else if (self.contract.normalDividends === null) {
-          normalDivs = 0;
-        } else {
-          normalDivs = self.contract.normalDividends
+          return false
         }
 
-        const roundedDivs = normalDivs.toFixed(3)
-        return roundedDivs
+        const address = self.contract.getCurrentAddress()
+        return address !== null
       },
-      divsUsdMessage: function () {
+
+      userReferralLink: function () {
         const self = this
-        let normalDivs = 0;
+        let address
 
         if (self.contract === null) {
-          normalDivs = 0;
-        } else if (self.contract.normalDividends === null) {
-          normalDivs = 0;
-        } else if (self.contract.bngPrice === null) {
-          normalDivs = 0;
+          address = null
         } else {
-          normalDivs = self.contract.normalDividends
+          address = self.contract.getCurrentAddress()
         }
 
-        const usdDivs = normalDivs * self.contract.bngPrice
-        const roundedUsdDivs = usdDivs.toFixed(2)
-        // console.log('DIVES', normalDivs, usdDivs, roundedUsdDivs)
-        return roundedUsdDivs
-      },
-      refsMessage: function () {
-        const self = this
-        let referralDivs = 0;
+        let href = window.location.href
+        href = href.replace('#', '')
+        const baseurl = href.split('?')[0]
 
-        if (self.contract === null) {
-          referralDivs = 0;
-        } else if (self.contract.referralDividends === null) {
-          referralDivs = 0;
+        if (address === null) {
+          return
         } else {
-          referralDivs = self.contract.referralDividends
+          return `${baseurl}?ref=${address}`
         }
-
-        const roundedDivs = referralDivs.toFixed(3)
-        return roundedDivs
-      },
-      refsUsdMessage: function () {
-        const self = this
-        let referralDivs = 0;
-
-        if (self.contract === null) {
-          referralDivs = 0;
-        } else if (self.contract.referralDividends === null) {
-          referralDivs = 0;
-        } else if (self.contract.bngPrice === null) {
-          referralDivs = 0;
-        } else {
-          referralDivs = self.contract.referralDividends
-        }
-
-        const usdDivs = referralDivs * self.contract.bngPrice
-        const roundedUsdDivs = usdDivs.toFixed(2)
-        return roundedUsdDivs
       }
     },
 
     methods: {
+      copyReferral () {
+        const self = this
+        const link = self.userReferralLink
+        Misc.copyToClipboard(link)
+
+        self.$buefy.toast.open({
+          duration: 1000,
+          message: 'Referral link copied!',
+          position: 'is-bottom',
+          type: 'is-info'
+        })
+      }
     },
 
     mounted: function () {
@@ -127,11 +116,6 @@
       (async () => {
         while (!self.isDestroyed) {
           await Misc.sleepAsync(200)
-          if (self.contract === null) {
-            self.contractConnected = true
-          }
-
-          self.contractConnected = self.contract.isConnected()
         }
       })()
     },
@@ -146,17 +130,14 @@
 </script>
 
 <style lang="scss" scoped>
+@import "../assets/vars.scss";
+
 p {
   text-align: left;
   font-size: 1.2rem;
 }
 
 * {
-  font-size: 1.2rem;
-}
-
-p#contract-address {
-  margin-bottom: 1rem;
   font-size: 1.2rem;
 }
 
@@ -186,6 +167,23 @@ div.holder {
 
   & div.bottom {
     margin-top: auto;
+    & * {
+      font-size: 1.1rem;
+    }
+    & p#contract-address {
+      font-size: 1rem;
+      word-break: break-all;
+    }
+    & a {
+      font-family: 'Ubuntu Mono';
+      color: $primary-color-semidark;
+      font-weight: 700;
+      font-size: 1rem;
+
+      &:active {
+        color: $primary-color-dark;
+      }
+    }
   }
 
   & div.div-actions {
@@ -206,7 +204,7 @@ div.holder {
 
 #buy-and-sell {
   margin-top: 0.5rem;
-  margin-bottom: 0.5rem;
+  margin-bottom: 2.5rem;
 }
 
 .divs-info {
