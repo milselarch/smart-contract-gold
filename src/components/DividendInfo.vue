@@ -1,13 +1,17 @@
 <template>
-  <div class="golder">
+  <div class="holder">
     <div class="divs-info referral-divs">
-      <span class="header">Referrals: </span>
+      <div class="color"></div>
+      <span class="header">
+        Referrals:
+      </span>
       <span class="divs">
         {{ refsMessage }} BNB / {{ refsUsdMessage }} USD
       </span>
     </div>
 
     <div class="divs-info normal-divs">
+      <div class="color"></div>
       <span class="header">Dividends: </span>
       <span class="divs">
         {{ divsMessage }} BNB / {{ divsUsdMessage }} USD
@@ -15,6 +19,7 @@
     </div>
 
     <div class="divs-info metamask">
+      <div class="color"></div>
       <span class="header">Metamask: </span>
       <span class="divs">
         {{ metamaskMessage }} BNB / {{ metamaskUsdMessage }} USD
@@ -176,6 +181,19 @@ p {
 
 .divs-info {
   display: flex;
+
+  &.normal-divs > div.color {
+    background-color: #c98c3e;
+  } &.referral-divs > div.color {
+    background-color: #966b4e;
+  } &.metamask > div.color {
+    background-color: #DDD;
+  }
+
+  & > div.color {
+    margin-right: 0.7rem;
+    width: 0.3rem;
+  }
 
   & > .header {
     width: 7rem;

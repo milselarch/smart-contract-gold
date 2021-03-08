@@ -22,10 +22,10 @@ import ContentBar from './components/ContentBar.vue'
 import ABI from './components/ABI'
 import EthContract from './components/BngContract'
 import Misc from './components/misc'
-import { ColorUpdater } from "bulma-css-vars";
-import { bulmaCssVariablesDefs } from "./bulma-generated/bulma-colors";
+// import { ColorUpdater } from "bulma-css-vars";
+// import { bulmaCssVariablesDefs } from "./bulma-generated/bulma-colors";
 
-const updater = new ColorUpdater(bulmaCssVariablesDefs);
+// const updater = new ColorUpdater(bulmaCssVariablesDefs);
 
 const wallet = require('eth-lightwallet')
 
@@ -41,6 +41,7 @@ export default {
   },
 
   methods: {
+    /*
      setColor (newColor, varName="primary") {
       const self = this
       const updatedVars = updater.getUpdatedVars(
@@ -52,6 +53,7 @@ export default {
         return `${name}: ${value};`;
       })
     }
+    */
   },
 
   created: function () {
@@ -125,9 +127,10 @@ export default {
 <style lang="scss">
 @import "~bulma/sass/utilities/_all";
 // Import Bulma and Buefy styles
-@import "./assets/vars.scss";
 @import "~bulma";
-@import "~buefy/src/scss/buefy";
+@import "./assets/vars.scss";
+@import '~buefy/dist/buefy.css';
+// @import "~buefy/src/scss/buefy";
 
 // Defaults to weight 400 with all styles included.
 // @import url('https://fonts.googleapis.com/css?family=Open-Sans');

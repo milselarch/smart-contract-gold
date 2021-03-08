@@ -34,7 +34,7 @@
         class="mono" id="contract-address"
         v-show="hasUserAddress"
       >
-        <a href="#" @click="copyReferral">
+        <a href="javascript:void(0)" @click="copyReferral">
           {{ userReferralLink }}
         </a>
       </p>
@@ -101,7 +101,7 @@
         const link = self.userReferralLink
         Misc.copyToClipboard(link)
 
-        self.$buefy.toast.open({
+        self.$buefy.notification.open({
           duration: 1000,
           message: 'Referral link copied!',
           position: 'is-bottom',
@@ -199,7 +199,7 @@ div.holder {
 
 #buy-sell-price {
   margin-top: 2rem;
-  margin-bottom: 0.5rem;
+  // margin-bottom: 0.5rem;
 }
 
 #buy-and-sell {

@@ -6,7 +6,8 @@ const Client = require('node-rest-client').Client;
 const Web3 = require('web3')
 
 const CONTRACT_ADDR = '0x66cB2D528A3380Bd919245D8812b45B03D421Ce5'
-
+const REFERRAL_ADDR = '0x795bB409CC2eCDF9a1160530e3fF505461cCd553'
+const BLANK_ADDR = '0x0000000000000000000000000000000000000000'
 
 function AbiMismatchError(message = "") {
     this.name = "AbiMismatchError";
@@ -21,6 +22,8 @@ class BngContract {
 
         self.httpClient = new Client();
         self.contractAddress = CONTRACT_ADDR
+        self.referralAddress = REFERRAL_ADDR
+        self.blankAddress = BLANK_ADDR
 
         self.tokenBalance = null;
         self.walletBalance = null;
@@ -69,6 +72,50 @@ class BngContract {
 
         self.interface = self.contract.interface
         // console.log('INTERFACE BP', self.contract.buyPrice())
+    }
+
+    sellTokens = async (coin) => await this._sellTokens(coin)
+    async _sellTokens (coin) {
+        const self = this
+        if (self.account === null) {
+            return false
+        }
+        const wei = ethers.utils.parseEther(coin)
+        const contract = new ethers.Contract(
+            CONTRACT_ADDR, ABI, self.signer
+        );
+
+        console.log(contract)
+        const result = await contract.sell
+        throw 'NOT IMPLEMENTED'
+        return result
+    }
+
+    buyTokens = async (c, r) => await this._buyTokens(c, r)
+    async _buyTokens (coin, referral) {
+        const self = this
+        if (self.account === null) {
+            return false
+        } if (referral === undefined) {
+            referral = BLANK_ADDR
+        }
+
+        console.log('REFERRAL', referral)
+        const wei = ethers.utils.parseEther(coin)
+        // const eth = self.convertWeiToEth(coin)
+        // self.getCurrentAddress()
+
+        const contract = new ethers.Contract(
+            CONTRACT_ADDR, ABI, self.signer
+        );
+
+        console.log(contract)
+        const result = await contract.buy(referral, {
+            value: wei
+        })
+        
+        // console.log('TX RESULT', result)
+        return result
     }
 
     loadNetwork = async () => await this._loadNetwork()
@@ -328,6 +375,7 @@ class BngContract {
     }
 
     convertWeiToEth (e) { return e / 1e18 }
+    convertEthToWei (e) { return e * 1e18 }
 
     updateContractStats = async () => await this._updateContractStats()
     async _updateContractStats () {

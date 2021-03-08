@@ -1,5 +1,5 @@
 <template>
-  <a class="corner-button">
+  <a @click="$emit('click')" class="corner-button">
     <span><slot></slot></span>
   </a>
 </template>
@@ -49,7 +49,9 @@ export default {
 
   .corner-button {
     @include colorize(#222);
-    &.is-primary {
+    &.is-primary-dark {
+      @include colorize(#1257e0)
+    } &.is-primary {
       @include colorize(#417aeb)
     } &.is-gold {
       @include colorize(#fbad2e)

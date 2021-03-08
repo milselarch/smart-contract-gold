@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import App from './App.vue'
+import Misc from './components/misc.js'
 
 import Buefy from 'buefy'
 // import 'buefy/dist/buefy.css'
@@ -22,8 +23,12 @@ library.add(faUserSecret)
 library.add(faTelegram)
 library.add(faDiscord)
 library.add(faArrowDown)
-Vue.component('font-awesome-icon', FontAwesomeIcon)
 
+if (Misc.getUrlRef() !== null) {
+  Misc.setReferral(Misc.getUrlRef())
+} 
+
+Vue.component('font-awesome-icon', FontAwesomeIcon)
 Vue.config.productionTip = false
 
 Vue.use(Donut);

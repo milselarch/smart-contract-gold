@@ -1,5 +1,31 @@
 <template>
   <div>
+    <b-modal v-model="showModal">
+      <div class="referral-modal">
+        <p>Use the website creator's referral link?</p>
+        <p class="mono">
+          (0x795bB409CC2eCDF9a1160530e3fF505461cCd553)
+        </p>
+        <div class='choices'>
+          <VueButton
+            @click="buyTokens(true, true)" class="is-danger no"
+          >
+            Nah
+          </VueButton>
+          <VueButton 
+            @click="buyTokens(true, false)" class="is-primary-dark yes"
+          >
+            Sure!
+          </VueButton>
+        </div>
+        <b-checkbox
+          v-model='remember' class="remember" type="is-info"
+        >
+          Remember my choice
+        </b-checkbox>
+      </div>
+    </b-modal>
+
     <div v-show="contractConnected">
       <div class='holder buy-holder'>
         <input 
@@ -7,7 +33,10 @@
           ref="buyInput" min="0" step="0.01"
           v-model="buyAmount"
         >
-        <VueButton class="v-button is-primary small">
+        <VueButton 
+          class="v-button is-primary small"
+          @click="buy()"
+        >
           Buy Tokens
         </VueButton>
       </div>
@@ -25,7 +54,10 @@
           ref="sellInput" min="0" step="0.01"
           v-model="sellAmount"
         >
-        <VueButton class="v-button is-danger small">
+        <VueButton
+          class="v-button is-danger small"
+          @click="sell()"
+        >
           Sell Tokens
         </VueButton>
       </div>
@@ -80,6 +112,8 @@
         contractConnected: true,
         sellAmount: '',
         buyAmount: '',
+        showModal: false,
+        remember: true,
         loader: null
       }
     },
@@ -130,6 +164,98 @@
     },
 
     methods: {
+      async buy () {
+        const self = this
+        
+        if (self.buyAmount === '') {
+          return
+        } else if (self.contract === null) {
+          return
+        }
+
+        if (Misc.getCookie('ref') === null) {
+          console.log('BUY SET')
+          self.showModal = true
+        } else {
+          self.buyTokens(false)
+        }
+      },
+
+      async sell () {
+        const self = this
+        
+        if (self.sellAmount === '') {
+          return
+        } else if (self.contract === null) {
+          return
+        }
+
+        let sellAmount = '0'
+        if (self.sellAmount.trim() !== '') {
+          Misc.assert(Misc.isNumber(self.sellAmount))
+          sellAmount = self.buyAmount
+        }
+
+        await self.contract.sellTokens(sellAmount)
+      },
+
+      async buyTokens (setReferral=false, blank=false) {
+        const self = this
+        self.showModal = false
+        Misc.assert(typeof setReferral === 'boolean')
+        if (self.contract === null) {
+          return
+        }
+
+        if (setReferral) {
+          if (blank) {
+            Misc.setReferral(self.contract.blankAddress)
+          } else {
+            Misc.setReferral(self.contract.referralAddress)
+          }
+        }
+
+        let buyAmount = '0'
+        if (self.buyAmount.trim() !== '') {
+          Misc.assert(Misc.isNumber(self.buyAmount))
+          buyAmount = self.buyAmount
+        }
+
+        const referralAddress = Misc.getCookie('ref')
+
+        try {
+          await self.contract.buyTokens(buyAmount, referralAddress)
+          self.buyAmount = ''
+
+          self.$buefy.notification.open({
+            duration: 5000,
+            message: `Bought ${buyAmount} BNG tokens`,
+            position: 'is-bottom',
+            type: 'is-success',
+            hasIcon: false
+          })          
+        
+        } catch (error) {
+          if (error.code === -32603) {
+            self.$buefy.notification.open({
+              duration: 5000,
+              message: 'Not enough funds for purchase <br/> (or transaction failed)',
+              position: 'is-bottom',
+              type: 'is-danger',
+              hasIcon: false
+            })
+          } else {
+            self.$buefy.notification.open({
+              duration: 5000,
+              message: error.message,
+              position: 'is-bottom',
+              type: 'is-danger',
+              hasIcon: false
+            })
+          }
+        }
+      },
+
       async reconnect () {
         const self = this
 
@@ -169,7 +295,7 @@
     
       (async () => {
         while (!self.isDestroyed) {
-          await Misc.sleepAsync(200)
+          await Misc.sleepAsync(2000)
           if (self.contract === null) {
             self.contractConnected = true
           }
@@ -202,6 +328,40 @@ input {
   }
   &::placeholder {
     color: #BBB;
+  }
+}
+
+div.referral-modal {
+  padding: 2rem;
+  background-color: white;
+  width: fit-content;
+  margin: auto;
+  border-radius: 0.5rem;
+
+  & > p {
+    font-size: 1.2rem;
+  }
+
+  & > p.mono {
+    font-family: 'Ubuntu Mono';
+    font-size: 1.2rem;
+    font-weight: 700;
+  }
+
+  & .remember {
+    margin-top: 1rem;
+  }
+
+  & > div.choices {
+    height: fit-content;
+    display: flex;
+    margin-top: 0.5rem;
+    align-items: bottom;
+    justify-content: center;
+
+    & > .yes {
+      margin-left: 1rem;
+    }
   }
 }
 

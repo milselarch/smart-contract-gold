@@ -92,7 +92,7 @@
 
         const roundedBalance = self.ethBalance.toFixed(2)
         const delimited = Misc.addCommas(roundedBalance)
-        return `${delimited} ETH`
+        return `${delimited} BNB`
       },
       usdBalanceMessage: function () {
         const self = this
@@ -148,11 +148,11 @@
             console.error(e)
           }
 
-          console.log('WTG BALLNCE', self.ethBalance)
+          // console.log('WTG BALLNCE', self.ethBalance)
 
           try {
-            const buyPrice = await self.contract.getBuyPrice()
-            console.log('BUY PRICE', buyPrice)
+            // const buyPrice = await self.contract.getBuyPrice()
+            // console.log('BUY PRICE', buyPrice)
           } catch (e) {
             console.error(e)
           }
