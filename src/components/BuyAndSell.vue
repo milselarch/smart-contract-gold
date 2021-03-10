@@ -14,6 +14,7 @@
           </VueButton>
           <VueButton 
             @click="buyTokens(true, false)" class="is-primary-dark yes"
+
           >
             Sure!
           </VueButton>
@@ -34,15 +35,20 @@
           v-model="buyAmount"
         >
         <VueButton 
-          class="v-button is-primary small"
-          @click="buy()"
+          class="v-button is-primary small" @click="buy()"
+          v-bind:class="{
+            disabled: !enoughBalance || !connected,
+          }"
         >
           Buy Tokens
         </VueButton>
       </div>
 
       <p class="conversion buy">
-        <span v-bind:class="{subtle: buyAmount === ''}">
+        <span v-bind:class="{
+          subtle: buyAmount === '',
+          invalid: !enoughBalance
+        }">
           <!-- You'll recieve about {{ tokensToBuy }} BNG -->
           {{ Number(buyAmount) }} BNB ⟶ {{ tokensToBuy }} BNG
         </span>
@@ -50,20 +56,25 @@
 
       <div class='holder sell-holder'>
         <input
-          type="number" placeholder="BNB Token Amount"
+          type="number" placeholder="BNG Token Amount"
           ref="sellInput" min="0" step="0.01"
           v-model="sellAmount"
         >
         <VueButton
-          class="v-button is-danger small"
-          @click="sell()"
+          class="v-button is-danger small" @click="sell()"
+          v-bind:class="{
+            disabled: !enoughTokens || !connected
+          }"
         >
           Sell Tokens
         </VueButton>
       </div>
 
       <p class="conversion sell">
-        <span v-bind:class="{subtle: sellAmount === ''}">
+        <span v-bind:class="{
+          subtle: sellAmount === '',
+          invalid: !enoughTokens
+        }">
           <!-- You'll recieve about {{ bnbToRecieve }} BNB -->
           {{ Number(sellAmount) }} BNG ⟶ {{ bnbToRecieve }} BNB
         </span>
@@ -132,6 +143,54 @@
         return self.contract.network
       },
 
+      connected: function () {
+        const self = this
+        if (self.contract === undefined) {
+          return false
+        } else if (self.contract === null) {
+          return false
+        } else if (self.contract.account === null) {
+          return false
+        }
+
+        return true
+      },
+
+      enoughBalance: function () {
+        const self = this
+        if (self.contract === null) {
+          return true
+        } else if (self.contract.walletBalance === null) {
+          return true
+        }
+
+        const walletBalance = self.contract.walletBalance
+        const buyAmount = Number(self.buyAmount)
+        if (buyAmount > walletBalance) {
+          return false
+        }
+
+        return true
+      },
+
+      enoughTokens: function () {
+        const self = this
+        if (self.contract === null) {
+          return true
+        } else if (self.contract.tokenBalance === null) {
+          return true
+        }
+
+        const tokens = self.contract.tokenBalance
+        const sellAmount = Number(self.sellAmount)
+        console.log('TOKENS=S', tokens, sellAmount)
+        if (sellAmount > tokens) {
+          return false
+        }
+
+        return true
+      },
+
       tokensToBuy: function () {
         const self = this
         if (self.contract === null) {
@@ -193,10 +252,39 @@
         let sellAmount = '0'
         if (self.sellAmount.trim() !== '') {
           Misc.assert(Misc.isNumber(self.sellAmount))
-          sellAmount = self.buyAmount
+          sellAmount = self.sellAmount
         }
 
-        await self.contract.sellTokens(sellAmount)
+        try {
+          await self.contract.sellTokens(sellAmount)
+          self.sellAmount = ''
+
+          self.$buefy.notification.open({
+            duration: 5000,
+            message: `Sold ${sellAmount} BNG tokens`,
+            position: 'is-bottom',
+            type: 'is-success',
+            hasIcon: false
+          })
+        } catch (error) {
+          if (error.code === -32603) {
+            self.$buefy.notification.open({
+              duration: 5000,
+              message: 'Not enough tokens to sell! (or transaction failed)',
+              position: 'is-bottom',
+              type: 'is-danger',
+              hasIcon: false
+            })
+          } else {
+            self.$buefy.notification.open({
+              duration: 5000,
+              message: error.message,
+              position: 'is-bottom',
+              type: 'is-danger',
+              hasIcon: false
+            })
+          }
+        }
       },
 
       async buyTokens (setReferral=false, blank=false) {
@@ -239,7 +327,7 @@
           if (error.code === -32603) {
             self.$buefy.notification.open({
               duration: 5000,
-              message: 'Not enough funds for purchase <br/> (or transaction failed)',
+              message: 'Not enough funds for purchase! (or transaction failed)',
               position: 'is-bottom',
               type: 'is-danger',
               hasIcon: false
@@ -306,7 +394,12 @@
       })()
     },
 
-    props: ['contract'],
+    props: {
+      contract: {
+        type: Object,
+        default: null
+      }
+    },
     components: {
       VueButton
     },
@@ -396,7 +489,10 @@ div.holder {
       &.subtle {
         color: #AAA;
       } &:not(.subtle) {
-        color: #2a2a2a
+        color: #2a2a2a;
+        &.invalid {
+          color: #e84444;
+        }
       }
     }
   }

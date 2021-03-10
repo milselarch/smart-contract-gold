@@ -61,6 +61,11 @@ export default {
       @include colorize(#e84444)
     }
 
+    &.disabled {
+      text-decoration: line-through;
+      text-decoration-thickness: 0.15rem;
+    }
+
     &.small {
       font-size: 1rem;
     }

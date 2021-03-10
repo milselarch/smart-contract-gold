@@ -34,8 +34,8 @@ class BngContract {
         self.network = null;
         self.chainID = null;
 
-        self.balance = null;
-        self.tokens = null;
+        self.contractTokens = null;
+        self.contractBalance = null;
         self.bngPrice = null;
         self.buyPrice = null;
         self.sellPrice = null;
@@ -74,20 +74,50 @@ class BngContract {
         // console.log('INTERFACE BP', self.contract.buyPrice())
     }
 
+    withdraw = async () => await this._withdraw()
+    async _withdraw () {
+        const self = this
+        if (self.account === null) {
+            return
+        }
+
+        const contract = new ethers.Contract(
+            CONTRACT_ADDR, ABI, self.signer
+        );
+
+        const result = await contract.withdraw()
+        return result
+    }
+
+    reinvest = async () => await this._reinvest()
+    async _reinvest () {
+        const self = this
+        if (self.account === null) {
+            return
+        }
+
+        const contract = new ethers.Contract(
+            CONTRACT_ADDR, ABI, self.signer
+        );
+
+        const result = await contract.reinvest()
+        return result
+    }
+
     sellTokens = async (coin) => await this._sellTokens(coin)
     async _sellTokens (coin) {
         const self = this
         if (self.account === null) {
             return false
         }
+
         const wei = ethers.utils.parseEther(coin)
         const contract = new ethers.Contract(
             CONTRACT_ADDR, ABI, self.signer
         );
 
-        console.log(contract)
-        const result = await contract.sell
-        throw 'NOT IMPLEMENTED'
+        const result = await contract.sell(wei)
+        // console.log('TX RESULT', result)
         return result
     }
 
@@ -381,8 +411,8 @@ class BngContract {
     async _updateContractStats () {
         const self = this
         try {
-            self.balance = await self.getContractBalance()
-            self.tokens = await self.getContractTokens()
+            self.contractBalance = await self.getContractBalance()
+            self.contractTokens = await self.getContractTokens()
         } catch (e) {
             if (typeof e === TypeError) {
                 throw AbiMismatchError(e.message)

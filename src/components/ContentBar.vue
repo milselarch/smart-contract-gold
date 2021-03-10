@@ -7,10 +7,18 @@
       </DividendInfo>
 
       <div class="div-actions">
-        <VueButton class="withdraw is-gold small">
+        <VueButton 
+          class="withdraw is-gold small"
+          v-bind:class="{disabled: !connected}"
+          @click="withdraw()"
+        >
           Withdraw
         </VueButton>
-        <VueButton class="reinvest is-dividend small">
+        <VueButton
+          class="reinvest is-dividend small"
+          v-bind:class="{disabled: !connected}"
+          @click="reinvest()"
+        >
           Reinvest
         </VueButton>
       </div>
@@ -63,6 +71,19 @@
     },
 
     computed: {
+      connected: function () {
+        const self = this
+        if (self.contract === undefined) {
+          return false
+        } else if (self.contract === null) {
+          return false
+        } else if (self.contract.account === null) {
+          return false
+        }
+
+        return true
+      },
+
       hasUserAddress: function () {
         const self = this
         if (self.contract === null) {
@@ -107,6 +128,54 @@
           position: 'is-bottom',
           type: 'is-info'
         })
+      },
+      async withdraw () {
+        const self = this
+        if (!self.connected) {
+          return
+        }
+        try {
+          await self.contract.withdraw()
+          self.$buefy.notification.open({
+            duration: 5000,
+            message: `BNB dividends witthdrawn`,
+            position: 'is-bottom',
+            type: 'is-success',
+            hasIcon: false
+          })
+        } catch (error) {
+          self.$buefy.notification.open({
+            duration: 5000,
+            message: error.message,
+            position: 'is-bottom',
+            type: 'is-danger',
+            hasIcon: false
+          })
+        }
+      },
+      async reinvest () {
+        const self = this
+        if (!self.connected) {
+          return
+        }
+        try {
+          await self.contract.reinvest()
+          self.$buefy.notification.open({
+            duration: 5000,
+            message: `Reinvested BNB dividends`,
+            position: 'is-bottom',
+            type: 'is-success',
+            hasIcon: false
+          })
+        } catch (error) {
+          self.$buefy.notification.open({
+            duration: 5000,
+            message: error.message,
+            position: 'is-bottom',
+            type: 'is-danger',
+            hasIcon: false
+          })
+        }
       }
     },
 
@@ -125,7 +194,12 @@
       VueButton
     },
 
-    props: ['contract'],
+    props: {
+      contract: {
+        type: Object,
+        default: null
+      }
+    }
   }
 </script>
 

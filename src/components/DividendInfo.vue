@@ -165,7 +165,12 @@ export default {
     })()
   },
 
-  props: ['contract'],
+  props: {
+    contract: {
+      type: Object,
+      default: null
+    }
+  }
 }
 </script>
 

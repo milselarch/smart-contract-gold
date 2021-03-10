@@ -118,7 +118,12 @@
       this.isDestroyed = true
     },
 
-    props: ['contract'],
+    props: {
+      contract: {
+        type: Object,
+        default: null
+      }
+    },
 
     mounted () {
       const self = this
@@ -128,15 +133,13 @@
       (async () => {
         while (!self.isDestroyed) {
           if (self.contract !== null) {
-            if (self.contract.balance !== null) {
-              self.balance = self.contract.balance
-            } if (self.contract.tokens !== null) {
-              self.tokens = self.contract.tokens
+            if (self.contract.contractBalance !== null) {
+              self.balance = self.contract.contractBalance
+            } if (self.contract.contractTokens !== null) {
+              self.tokens = self.contract.contractTokens
             } if (self.contract.bngPrice !== null) {
               self.bngPrice = self.contract.bngPrice
             }
-
-            // console.log('BALANCE', self.contract, self.balance)
           }
 
           await Misc.sleepAsync(2500)
