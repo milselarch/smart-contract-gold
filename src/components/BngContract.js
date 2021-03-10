@@ -30,7 +30,9 @@ class BngContract {
         self.referralDividends = null;
         self.normalDividends = null;
         
+        self.loginAttempted = false
         self.networkChanged = false;
+
         self.network = null;
         self.chainID = null;
 
@@ -374,10 +376,13 @@ class BngContract {
                 await window.ethereum.enable();
                 self.login()
 
+                await self._loadTokenBalance()
                 return window.web3
             } catch (error) {
                 // User denied account access...
                 return false
+            } finally {
+                self.loginAttempted = true
             }
         }
         // Legacy dapp browsers...
@@ -387,10 +392,13 @@ class BngContract {
             self.web3 = window.web3
             self.login()
 
+            await self._loadTokenBalance()
+            self.loginAttempted = true
             return window.web3
         }
         // Non-dapp browsers...
         else {
+            self.loginAttempted = true
             console.log("Non-Ethereum browser detected. You should consider trying MetaMask!");
             return false
         }

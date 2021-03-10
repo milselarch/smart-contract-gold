@@ -33,7 +33,7 @@
     <div class="bottom">
       <p>Contract Address:</p>
       <p class="mono" id="contract-address">
-        0X167CB3F2446F829EB327344B66E271D1A7EFEC9A
+        0X66CB2D528A3380BD919245D8812B45B03D421CE5
       </p>
       <p v-show="hasUserAddress">
         Your Referral Link:
@@ -75,9 +75,9 @@
         const self = this
         if (self.contract === undefined) {
           return false
-        } else if (self.contract === null) {
+        } if (self.contract === null) {
           return false
-        } else if (self.contract.account === null) {
+        } if (self.contract.tokenBalance === null) {
           return false
         }
 

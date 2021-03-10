@@ -8,13 +8,14 @@
         </p>
         <div class='choices'>
           <VueButton
-            @click="buyTokens(true, true)" class="is-danger no"
+            @click="buyTokens(remember, true)"
+            class="is-danger no"
           >
             Nah
           </VueButton>
           <VueButton 
-            @click="buyTokens(true, false)" class="is-primary-dark yes"
-
+            @click="buyTokens(remember, false)"
+            class="is-primary-dark yes"
           >
             Sure!
           </VueButton>
@@ -26,6 +27,10 @@
         </b-checkbox>
       </div>
     </b-modal>
+
+    <p class="filler">
+      {{ [contractConnected] }}
+    </p>
 
     <div v-show="contractConnected">
       <div class='holder buy-holder'>
@@ -83,7 +88,7 @@
 
     <b-message
       type="is-danger" id="connect-error"
-      v-if="!contractConnected"
+      v-show="!contractConnected"
     >
       <div v-show="!wrongChainID">
         <p class="error">
@@ -147,12 +152,12 @@
         const self = this
         if (self.contract === undefined) {
           return false
-        } else if (self.contract === null) {
+        } if (self.contract === null) {
           return false
-        } else if (self.contract.account === null) {
+        } if (self.contract.tokenBalance === null) {
           return false
         }
-
+  
         return true
       },
 
@@ -270,7 +275,7 @@
           if (error.code === -32603) {
             self.$buefy.notification.open({
               duration: 5000,
-              message: 'Not enough tokens to sell! (or transaction failed)',
+              message: "Can't sell more tokens than you own!",
               position: 'is-bottom',
               type: 'is-danger',
               hasIcon: false
@@ -303,13 +308,20 @@
           }
         }
 
+        let referralAddress = Misc.getCookie('ref')
+        if (referralAddress === null) {
+          if (blank) {
+            referralAddress = self.contract.blankAddress
+          } else {
+            referralAddress = self.contract.referralAddress
+          }
+        }
+
         let buyAmount = '0'
         if (self.buyAmount.trim() !== '') {
           Misc.assert(Misc.isNumber(self.buyAmount))
           buyAmount = self.buyAmount
         }
-
-        const referralAddress = Misc.getCookie('ref')
 
         try {
           await self.contract.buyTokens(buyAmount, referralAddress)
@@ -327,7 +339,7 @@
           if (error.code === -32603) {
             self.$buefy.notification.open({
               duration: 5000,
-              message: 'Not enough funds for purchase! (or transaction failed)',
+              message: 'Not enough funds for purchase!',
               position: 'is-bottom',
               type: 'is-danger',
               hasIcon: false
@@ -356,7 +368,7 @@
 
         if ((web3 === false) || (web3 === undefined)) {
           // show error message if metamask connection fails
-          self.$buefy.toast.open({
+          self.$buefy.notification.open({
             duration: 2000,
             message: `Metamask connection failed.`,
             position: 'is-bottom',
@@ -383,13 +395,16 @@
     
       (async () => {
         while (!self.isDestroyed) {
-          await Misc.sleepAsync(2000)
+          await Misc.sleepAsync(200)
           if (self.contract === null) {
-            self.contractConnected = true
+            console.log('FALSE CONTRACT')
+            self.contractConnected = false
           }
 
           self.wrongChainID = self.contract.isChainInvalid()
-          self.contractConnected = self.contract.isConnected()
+          if (self.contract.loginAttempted) {
+            self.contractConnected = self.contract.isConnected()
+          }
         }
       })()
     },
@@ -422,6 +437,10 @@ input {
   &::placeholder {
     color: #BBB;
   }
+}
+
+p.filler {
+  display: none
 }
 
 div.referral-modal {

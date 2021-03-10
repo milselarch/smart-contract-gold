@@ -142,7 +142,7 @@
             }
           }
 
-          await Misc.sleepAsync(2500)
+          await Misc.sleepAsync(200)
         }
       })();
     },

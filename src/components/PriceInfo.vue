@@ -102,7 +102,7 @@ export default {
     
     (async () => {
       while (!self.isDestroyed) {
-        await Misc.sleepAsync(1000)
+        await Misc.sleepAsync(200)
       }
     })()
   },

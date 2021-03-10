@@ -80,7 +80,7 @@ export default {
       if (self.contract.networkChanged) {
         loader = self.$buefy.loading.open()
 
-        self.$buefy.toast.open({
+        self.$buefy.notification.open({
           indefinite: false,
           message: `Metamask wallet changed`,
           position: 'is-bottom',
@@ -96,7 +96,7 @@ export default {
       }
       
       if (web3) {
-         self.$buefy.toast.open({
+         self.$buefy.notification.open({
           duration: 2000,
           message: `Metamask connected!.`,
           position: 'is-bottom',
@@ -108,7 +108,7 @@ export default {
       self.balance = await self.contract.getContractBalance()
 
       while (!self.isDestroyed) {
-        await Misc.sleepAsync(1000)
+        await Misc.sleepAsync(100)
         if (!web3) { continue }
       }
     })()

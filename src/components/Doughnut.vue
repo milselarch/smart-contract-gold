@@ -106,6 +106,10 @@
         }
 
         const usdBalance = self.contract.getUsdBalance()
+        if (usdBalance === null) {
+          return
+        }
+
         const roundedBalance = usdBalance.toFixed(2)
         const delimited = Misc.addCommas(roundedBalance)
         return `${delimited} USD`
@@ -121,19 +125,17 @@
 
     mounted: function () {
       const self = this;
-      let k = 0;
+      // let k = 0;
 
       (async () => {
         while (!self.isDestroyed) {
-          console.log('TURN', k)
-          k += 1
+          // console.log('TURN', k)
+          // k += 1
 
           if (self.contract === null) {
-            console.log('CON ISDES', self.isDestroyed)
             await Misc.sleepAsync(250)
             continue 
           } else if (self.contract.web3 === undefined) {
-            console.log('WEB3 ISDES', self.isDestroyed)
             await Misc.sleepAsync(250)
             continue
           }
@@ -157,7 +159,7 @@
             console.error(e)
           }
           
-          await Misc.sleepAsync(2500)
+          await Misc.sleepAsync(500)
           // console.log('ISDES', self.isDestroyed)
         }
       })()
