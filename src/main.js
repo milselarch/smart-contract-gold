@@ -17,6 +17,14 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import Donut from 'vue-css-donut-chart';
 import 'vue-css-donut-chart/dist/vcdonut.css';
 
+document.querySelector(
+  "meta[name=viewport]"
+).setAttribute(
+  'content', 'width=device-width, initial-scale=' + (
+    1 / window.devicePixelRatio
+  ) + ', maximum-scale=1.0, user-scalable=0'
+);
+
 // library.add(fab)
 library.add(fas)
 library.add(faUserSecret)

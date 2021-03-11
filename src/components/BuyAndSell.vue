@@ -188,7 +188,7 @@
 
         const tokens = self.contract.tokenBalance
         const sellAmount = Number(self.sellAmount)
-        console.log('TOKENS=S', tokens, sellAmount)
+        // console.log('TOKENS=', tokens, sellAmount)
         if (sellAmount > tokens) {
           return false
         }

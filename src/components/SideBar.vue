@@ -126,8 +126,8 @@
     },
 
     mounted () {
-      const self = this
-      console.log('MOUNTED');
+      const self = this;
+      //console.log('MOUNTED');
       // this.fillData()
       
       (async () => {

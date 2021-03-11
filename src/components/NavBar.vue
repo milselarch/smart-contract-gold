@@ -58,6 +58,7 @@ export default {
 <style lang="scss">
 #navbar {
   padding: 2rem;
+  padding-bottom: 0px;
 
   & .template-end * {
     margin-right: 0.5rem;

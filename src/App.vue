@@ -19,7 +19,6 @@ import NavBar from './components/NavBar.vue'
 import SideBar from './components/SideBar.vue'
 import ContentBar from './components/ContentBar.vue'
 
-import ABI from './components/ABI'
 import EthContract from './components/BngContract'
 import Misc from './components/misc'
 // import { ColorUpdater } from "bulma-css-vars";
@@ -27,7 +26,7 @@ import Misc from './components/misc'
 
 // const updater = new ColorUpdater(bulmaCssVariablesDefs);
 
-const wallet = require('eth-lightwallet')
+// const wallet = require('eth-lightwallet')
 
 export default {
   name: 'App',
@@ -58,7 +57,7 @@ export default {
 
   created: function () {
     // const self = this
-    console.log('WALLET', wallet, ABI)
+    // console.log('WALLET', wallet, ABI)
     // console.log('ADDRESS', wallet.keystore.getAddresses())
   },
 
@@ -89,7 +88,7 @@ export default {
       }
 
       const web3 = await self.contract.loadWallet()
-      console.log('WEB3-STATUS', web3)
+      // console.log('WEB3-STATUS', web3)
       
       if (loader !== undefined) {
         loader.close()
@@ -104,7 +103,7 @@ export default {
         })
       }
       
-      console.log('WALLER-KIAD', self.contract.getCurrentAddress())
+      // console.log('WALLER-KIAD', self.contract.getCurrentAddress())
       self.balance = await self.contract.getContractBalance()
 
       while (!self.isDestroyed) {

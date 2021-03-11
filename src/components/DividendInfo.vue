@@ -130,7 +130,7 @@ export default {
       }
       
       if (balance === 0) { return 0 }
-      console.log('BALANCE', balance)
+      // console.log('BALANCE', balance)
       const roundBalance = balance.toFixed(4)
       return roundBalance
     },

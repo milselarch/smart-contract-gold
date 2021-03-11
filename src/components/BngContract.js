@@ -49,7 +49,7 @@ class BngContract {
             ethereum, 'any'
         );
         self.provider.on('network', (newNetwork, oldNetwork) => {
-            console.log('UPDATE PROVIEER', newNetwork)
+            console.log('UPDATE PROVIDER', newNetwork)
             // https://docs.ethers.io/v5/single-page/
             // best practice for when the metamask network changes
             // is to simply refresh the page
@@ -141,7 +141,7 @@ class BngContract {
             CONTRACT_ADDR, ABI, self.signer
         );
 
-        console.log(contract)
+        // console.log(contract)
         const result = await contract.buy(referral, {
             value: wei
         })
@@ -372,7 +372,7 @@ class BngContract {
 
             try {
                 // Request account access if needed
-                console.log('CONNECT MORDERN')
+                // console.log('CONNECT MORDERN')
                 await window.ethereum.enable();
                 self.login()
 

@@ -55,12 +55,12 @@
         const dividends = self.contract.normalDividends
         const referrals = self.contract.referralDividends
         const total = ethBalance + dividends + referrals
-        console.log('TOTAL', ethBalance, dividends, referrals)
+        // console.log('TOTAL', ethBalance, dividends, referrals)
         
         const percentDivs = 100 * dividends / total
         const percentRefs = 100 * referrals / total
         const percentToken = 100 - percentDivs - percentRefs
-        console.log('PERCNETS', total, percentRefs, percentDivs, percentToken)
+        // console.log('PERCNETS', total, percentRefs, percentDivs, percentToken)
 
         return [
           { label: 'tokens', value: percentToken, color: '#fbad2e' },
@@ -176,6 +176,7 @@
 <style lang="scss" scoped>
 p.mono {
   font-family: 'Ubuntu Mono';
+  font-size: 2.4rem;
   font-weight: 700;
 
   &.small {
