@@ -1,6 +1,6 @@
 # smart-contract-gold
 
-Web frontend for interacting with the binance gold smart contract made using ethers.js, Vue, and the buefy UI framework
+Web3.0 frontend website code for interacting with the binance gold smart contract made using ethers.js, Vue, and the buefy UI framework.
 
 ![browser-screenshot](https://user-images.githubusercontent.com/11241733/169455545-4001117f-00b5-4435-9e2b-95ef8aadb6a6.png)
 
